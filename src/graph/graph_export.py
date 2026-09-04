@@ -70,6 +70,9 @@ def solution_edges_to_tracksdata(
         tracksdata.graph.IndexedRXGraph instance containing the reconstructed lineage tracks.
     """
     rx_tracks = tracksdata.graph.IndexedRXGraph()
+    rx_tracks.add_node_attr_key("z", pl.Float64)
+    rx_tracks.add_node_attr_key("y", pl.Float64)
+    rx_tracks.add_node_attr_key("x", pl.Float64)
 
     active_node_ids = set()
     for eid in active_edge_ids:

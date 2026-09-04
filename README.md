@@ -18,7 +18,7 @@ $$\text{4D Volumes }(T, Z, Y, X) \longrightarrow \text{3D U-Net Detection} \long
 - [x] **Phase 5**: Cell feature extraction and spatio-temporal positional encoding.
 - [x] **Phase 6**: Spatio-temporal Transformer edge predictor.
 - [x] **Phase 7**: Candidate graph builder.
-- [ ] **Phase 8**: Global ILP lineage solver.
+- [x] **Phase 8**: Global ILP lineage solver.
 - [ ] **Phase 9**: Competition submission pipeline & validation.
 
 ## 🚀 Quickstart
@@ -54,6 +54,11 @@ python src/training/train_tracker.py --train-dataset 44b6_0b24845f --detector-ch
 ### Build Spatio-Temporal Candidate Graph
 ```bash
 python scripts/build_candidate_graph.py --dataset 44b6_0b24845f --detector-checkpoint checkpoints/best_detector.pt --tracker-checkpoint checkpoints/best_tracker.pt
+```
+
+### Solve Global Lineages & Evaluate (SCIP ILP)
+```bash
+python scripts/solve_lineages.py --dataset 44b6_0b24845f --detector-checkpoint checkpoints/best_detector.pt --tracker-checkpoint checkpoints/best_tracker.pt --use-gt-nodes
 ```
 
 ### View 4D Dataset & Lineages
