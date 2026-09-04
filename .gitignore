@@ -1,0 +1,36 @@
+# Python bytecode & environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Datasets and large volumes
+data/train/
+data/test/
+data/raw/
+*.zarr/
+*.geff/
+*.zip
+
+# Model checkpoints (large binary weights)
+checkpoints/*.pt
+!checkpoints/.gitkeep
+
+# External reference repositories
+reference/
+
+# Environment secrets
+.env
