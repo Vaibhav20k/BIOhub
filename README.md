@@ -16,7 +16,7 @@ $$\text{4D Volumes }(T, Z, Y, X) \longrightarrow \text{3D U-Net Detection} \long
 - [x] **Phase 3**: 3D Temporal U-Net detector, anisotropic downsampling, Gaussian heatmap generation, and mixed-precision training.
 - [x] **Phase 4**: 3D sub-pixel NMS peak extraction and bipartite Hungarian matching ($7.0\,\mu\text{m}$ cutoff).
 - [x] **Phase 5**: Cell feature extraction and spatio-temporal positional encoding.
-- [ ] **Phase 6**: Spatio-temporal Transformer edge predictor.
+- [x] **Phase 6**: Spatio-temporal Transformer edge predictor.
 - [ ] **Phase 7**: Candidate graph builder.
 - [ ] **Phase 8**: Global ILP lineage solver.
 - [ ] **Phase 9**: Competition submission pipeline & validation.
@@ -44,6 +44,11 @@ python src/training/train_detector.py --train-dataset 44b6_0b24845f --epochs 10
 ### Evaluate Detector & Threshold Sweep
 ```bash
 python scripts/evaluate_detector.py --checkpoint checkpoints/best_detector.pt --dataset 44b6_0b24845f --sweep
+```
+
+### Train Spatio-Temporal Tracker
+```bash
+python src/training/train_tracker.py --train-dataset 44b6_0b24845f --detector-checkpoint checkpoints/best_detector.pt --epochs 10
 ```
 
 ### View 4D Dataset & Lineages

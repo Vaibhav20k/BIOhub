@@ -97,6 +97,7 @@ class TrilinearRoIPooler(nn.Module):
         if feature_map.ndim == 4:
             feature_map = feature_map.unsqueeze(0)  # (1, C, Z, Y, X)
 
+        feature_map = feature_map.float()
         assert feature_map.ndim == 5, f"Expected 5D feature map (1, C, Z, Y, X), got shape {feature_map.shape}"
         _, C, Z, Y, X = feature_map.shape
         N = coords_zyx.shape[0]
