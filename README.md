@@ -15,7 +15,7 @@ $$\text{4D Volumes }(T, Z, Y, X) \longrightarrow \text{3D U-Net Detection} \long
 - [x] **Phase 2**: Trajectory velocity/density profiling and interactive Napari / headless MIP visualization.
 - [x] **Phase 3**: 3D Temporal U-Net detector, anisotropic downsampling, Gaussian heatmap generation, and mixed-precision training.
 - [x] **Phase 4**: 3D sub-pixel NMS peak extraction and bipartite Hungarian matching ($7.0\,\mu\text{m}$ cutoff).
-- [ ] **Phase 5**: Cell feature extraction and spatio-temporal positional encoding.
+- [x] **Phase 5**: Cell feature extraction and spatio-temporal positional encoding.
 - [ ] **Phase 6**: Spatio-temporal Transformer edge predictor.
 - [ ] **Phase 7**: Candidate graph builder.
 - [ ] **Phase 8**: Global ILP lineage solver.
