@@ -1,0 +1,50 @@
+{
+  "dataset_name": "synthetic_clip",
+  "volume_shape": [
+    5,
+    16,
+    64,
+    64
+  ],
+  "scale_um": [
+    1.625,
+    0.40625,
+    0.40625
+  ],
+  "displacement": {
+    "count": 10,
+    "mean_um": 1.1096194077712558,
+    "std_um": 0.7856094894394845,
+    "median_um": 1.1490485194281397,
+    "p90_um": 2.4375,
+    "p95_um": 2.4375,
+    "p99_um": 2.4375,
+    "max_um": 2.4375,
+    "recommended_search_radius_um": 7.0
+  },
+  "density": {
+    "total_nodes": 12,
+    "num_timepoints_with_nodes": 5,
+    "mean_nodes_per_timepoint": 2.4,
+    "max_nodes_per_timepoint": 3,
+    "mean_nearest_neighbor_dist_um": 8.76947101104277,
+    "median_nearest_neighbor_dist_um": 9.003273172324624,
+    "p05_nearest_neighbor_dist_um": 4.875
+  },
+  "mitosis": {
+    "division_count": 1,
+    "division_rate_per_frame": 0.2,
+    "mean_daughter_separation_um": 4.875,
+    "median_daughter_separation_um": 4.875
+  },
+  "quantiles": {
+    "0.0": 0.00010476219904376194,
+    "0.001": 0.002091021661879495,
+    "0.01": 0.007799572665244341,
+    "0.1": 0.02822141256183386,
+    "0.9": 0.20771327316761015,
+    "0.99": 0.42281210690736726,
+    "0.999": 0.8425570789575583,
+    "1.0": 1.2100929021835327
+  }
+}
