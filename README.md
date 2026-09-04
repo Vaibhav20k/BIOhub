@@ -19,7 +19,7 @@ $$\text{4D Volumes }(T, Z, Y, X) \longrightarrow \text{3D U-Net Detection} \long
 - [x] **Phase 6**: Spatio-temporal Transformer edge predictor.
 - [x] **Phase 7**: Candidate graph builder.
 - [x] **Phase 8**: Global ILP lineage solver.
-- [ ] **Phase 9**: Competition submission pipeline & validation.
+- [x] **Phase 9**: Competition submission pipeline & validation.
 
 ## 🚀 Quickstart
 
@@ -69,3 +69,9 @@ python scripts/view_dataset.py --dataset 44b6_0b24845f
 # Headless MIP export
 python scripts/view_dataset.py --dataset 44b6_0b24845f --headless
 ```
+
+### Generate & Validate Submission
+```bash
+python scripts/generate_submission.py --datasets 44b6_0b24845f --output submission.csv --threshold 0.5
+```
+
