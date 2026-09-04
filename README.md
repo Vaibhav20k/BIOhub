@@ -14,7 +14,7 @@ $$\text{4D Volumes }(T, Z, Y, X) \longrightarrow \text{3D U-Net Detection} \long
 - [x] **Phase 1**: Lazy OME-Zarr reader, quantile normalization, patch sampling, and 3D augmentations.
 - [x] **Phase 2**: Trajectory velocity/density profiling and interactive Napari / headless MIP visualization.
 - [x] **Phase 3**: 3D Temporal U-Net detector, anisotropic downsampling, Gaussian heatmap generation, and mixed-precision training.
-- [ ] **Phase 4**: 3D sub-pixel NMS peak extraction and bipartite Hungarian matching ($7.0\,\mu\text{m}$ cutoff).
+- [x] **Phase 4**: 3D sub-pixel NMS peak extraction and bipartite Hungarian matching ($7.0\,\mu\text{m}$ cutoff).
 - [ ] **Phase 5**: Cell feature extraction and spatio-temporal positional encoding.
 - [ ] **Phase 6**: Spatio-temporal Transformer edge predictor.
 - [ ] **Phase 7**: Candidate graph builder.
@@ -39,6 +39,11 @@ pytest tests/ -v
 ### Train Baseline Detector
 ```bash
 python src/training/train_detector.py --train-dataset 44b6_0b24845f --epochs 10
+```
+
+### Evaluate Detector & Threshold Sweep
+```bash
+python scripts/evaluate_detector.py --checkpoint checkpoints/best_detector.pt --dataset 44b6_0b24845f --sweep
 ```
 
 ### View 4D Dataset & Lineages
