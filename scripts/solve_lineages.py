@@ -187,7 +187,13 @@ def main() -> None:
     logger.info(f"Saved evaluation report to {report_file}")
 
     geff_out = out_dir / f"solved_lineages_{dataset.name}.geff"
-    solved_tracks.to_geff(str(geff_out))
+    try:
+        solved_tracks.to_geff(str(geff_out), overwrite=True)
+    except TypeError:
+        import shutil
+        if geff_out.exists():
+            shutil.rmtree(geff_out)
+        solved_tracks.to_geff(str(geff_out))
     logger.info(f"Saved reconstructed lineages to {geff_out}")
 
 
