@@ -34,3 +34,9 @@ reference/
 
 # Environment secrets
 .env
+
+# Chunked staging and local database artifacts
+data/chunks/
+*.sqlite
+*.sqlite3
+submission*.csv

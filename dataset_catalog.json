@@ -1,0 +1,1230 @@
+{
+  "train": {
+    "44b6_0113de3b": {
+      "zarr_bytes": 456757564,
+      "zarr_files": 102,
+      "geff_bytes": 7617,
+      "geff_files": 21
+    },
+    "44b6_0b24845f": {
+      "zarr_bytes": 547662847,
+      "zarr_files": 102,
+      "geff_bytes": 7618,
+      "geff_files": 21
+    },
+    "44b6_0c582fdc": {
+      "zarr_bytes": 506002314,
+      "zarr_files": 102,
+      "geff_bytes": 7700,
+      "geff_files": 21
+    },
+    "44b6_0db75fae": {
+      "zarr_bytes": 394575075,
+      "zarr_files": 102,
+      "geff_bytes": 8572,
+      "geff_files": 21
+    },
+    "44b6_12dfb391": {
+      "zarr_bytes": 529443276,
+      "zarr_files": 102,
+      "geff_bytes": 12418,
+      "geff_files": 21
+    },
+    "44b6_144b256d": {
+      "zarr_bytes": 544335541,
+      "zarr_files": 102,
+      "geff_bytes": 8132,
+      "geff_files": 21
+    },
+    "44b6_1574802b": {
+      "zarr_bytes": 398567837,
+      "zarr_files": 102,
+      "geff_bytes": 8547,
+      "geff_files": 21
+    },
+    "44b6_18ced818": {
+      "zarr_bytes": 560239657,
+      "zarr_files": 102,
+      "geff_bytes": 7965,
+      "geff_files": 21
+    },
+    "44b6_1d530831": {
+      "zarr_bytes": 517798867,
+      "zarr_files": 102,
+      "geff_bytes": 9555,
+      "geff_files": 21
+    },
+    "44b6_24264f12": {
+      "zarr_bytes": 467494128,
+      "zarr_files": 102,
+      "geff_bytes": 9182,
+      "geff_files": 21
+    },
+    "44b6_267148e4": {
+      "zarr_bytes": 384925816,
+      "zarr_files": 102,
+      "geff_bytes": 9384,
+      "geff_files": 21
+    },
+    "44b6_2a2eff9f": {
+      "zarr_bytes": 514618389,
+      "zarr_files": 102,
+      "geff_bytes": 8976,
+      "geff_files": 21
+    },
+    "44b6_2f31fc2f": {
+      "zarr_bytes": 497888227,
+      "zarr_files": 102,
+      "geff_bytes": 7899,
+      "geff_files": 21
+    },
+    "44b6_33b596bf": {
+      "zarr_bytes": 474866037,
+      "zarr_files": 102,
+      "geff_bytes": 7587,
+      "geff_files": 21
+    },
+    "44b6_341df25f": {
+      "zarr_bytes": 386087572,
+      "zarr_files": 102,
+      "geff_bytes": 8875,
+      "geff_files": 21
+    },
+    "44b6_3a861e03": {
+      "zarr_bytes": 493710406,
+      "zarr_files": 102,
+      "geff_bytes": 13308,
+      "geff_files": 21
+    },
+    "44b6_3bb3690f": {
+      "zarr_bytes": 508635810,
+      "zarr_files": 102,
+      "geff_bytes": 9806,
+      "geff_files": 21
+    },
+    "44b6_40c45f5a": {
+      "zarr_bytes": 520833215,
+      "zarr_files": 102,
+      "geff_bytes": 8803,
+      "geff_files": 21
+    },
+    "44b6_415c0a3a": {
+      "zarr_bytes": 522285003,
+      "zarr_files": 102,
+      "geff_bytes": 9671,
+      "geff_files": 21
+    },
+    "44b6_53f95252": {
+      "zarr_bytes": 546151671,
+      "zarr_files": 102,
+      "geff_bytes": 7769,
+      "geff_files": 21
+    },
+    "44b6_551a5dba": {
+      "zarr_bytes": 550837243,
+      "zarr_files": 102,
+      "geff_bytes": 8978,
+      "geff_files": 21
+    },
+    "44b6_5740d24b": {
+      "zarr_bytes": 452260334,
+      "zarr_files": 102,
+      "geff_bytes": 8733,
+      "geff_files": 21
+    },
+    "44b6_587a1e22": {
+      "zarr_bytes": 411772332,
+      "zarr_files": 102,
+      "geff_bytes": 10097,
+      "geff_files": 21
+    },
+    "44b6_5f15d135": {
+      "zarr_bytes": 539933235,
+      "zarr_files": 102,
+      "geff_bytes": 9412,
+      "geff_files": 21
+    },
+    "44b6_668e0cc7": {
+      "zarr_bytes": 462592772,
+      "zarr_files": 102,
+      "geff_bytes": 11713,
+      "geff_files": 21
+    },
+    "44b6_66f9292d": {
+      "zarr_bytes": 522643965,
+      "zarr_files": 102,
+      "geff_bytes": 8725,
+      "geff_files": 21
+    },
+    "44b6_706092f0": {
+      "zarr_bytes": 550630519,
+      "zarr_files": 102,
+      "geff_bytes": 8113,
+      "geff_files": 21
+    },
+    "44b6_71a4179f": {
+      "zarr_bytes": 543775447,
+      "zarr_files": 102,
+      "geff_bytes": 8141,
+      "geff_files": 21
+    },
+    "44b6_74d0c52e": {
+      "zarr_bytes": 418504706,
+      "zarr_files": 102,
+      "geff_bytes": 8429,
+      "geff_files": 21
+    },
+    "44b6_7a302da0": {
+      "zarr_bytes": 581148135,
+      "zarr_files": 102,
+      "geff_bytes": 10697,
+      "geff_files": 21
+    },
+    "44b6_7e557709": {
+      "zarr_bytes": 512003896,
+      "zarr_files": 102,
+      "geff_bytes": 11094,
+      "geff_files": 21
+    },
+    "44b6_808952d6": {
+      "zarr_bytes": 447428718,
+      "zarr_files": 102,
+      "geff_bytes": 8748,
+      "geff_files": 21
+    },
+    "44b6_81c256f0": {
+      "zarr_bytes": 406767384,
+      "zarr_files": 102,
+      "geff_bytes": 8731,
+      "geff_files": 21
+    },
+    "44b6_87bba6c4": {
+      "zarr_bytes": 490466193,
+      "zarr_files": 102,
+      "geff_bytes": 8511,
+      "geff_files": 21
+    },
+    "44b6_8cc6506c": {
+      "zarr_bytes": 526273798,
+      "zarr_files": 102,
+      "geff_bytes": 9747,
+      "geff_files": 21
+    },
+    "44b6_8f5ab931": {
+      "zarr_bytes": 485921971,
+      "zarr_files": 102,
+      "geff_bytes": 11438,
+      "geff_files": 21
+    },
+    "44b6_8f9ecab4": {
+      "zarr_bytes": 547633463,
+      "zarr_files": 102,
+      "geff_bytes": 9586,
+      "geff_files": 21
+    },
+    "44b6_90724892": {
+      "zarr_bytes": 473810941,
+      "zarr_files": 102,
+      "geff_bytes": 7989,
+      "geff_files": 21
+    },
+    "44b6_949adeb1": {
+      "zarr_bytes": 517562962,
+      "zarr_files": 102,
+      "geff_bytes": 9897,
+      "geff_files": 21
+    },
+    "44b6_95029e92": {
+      "zarr_bytes": 362988464,
+      "zarr_files": 102,
+      "geff_bytes": 8855,
+      "geff_files": 21
+    },
+    "44b6_97725144": {
+      "zarr_bytes": 545909170,
+      "zarr_files": 102,
+      "geff_bytes": 9192,
+      "geff_files": 21
+    },
+    "44b6_996155de": {
+      "zarr_bytes": 423932277,
+      "zarr_files": 102,
+      "geff_bytes": 9738,
+      "geff_files": 21
+    },
+    "44b6_9be80b04": {
+      "zarr_bytes": 548031429,
+      "zarr_files": 102,
+      "geff_bytes": 8849,
+      "geff_files": 21
+    },
+    "44b6_9bfa6a0a": {
+      "zarr_bytes": 514800940,
+      "zarr_files": 102,
+      "geff_bytes": 9248,
+      "geff_files": 21
+    },
+    "44b6_a21120c2": {
+      "zarr_bytes": 429380147,
+      "zarr_files": 102,
+      "geff_bytes": 9489,
+      "geff_files": 21
+    },
+    "44b6_a2bb48bb": {
+      "zarr_bytes": 607764799,
+      "zarr_files": 102,
+      "geff_bytes": 10036,
+      "geff_files": 21
+    },
+    "44b6_aaf8b0ea": {
+      "zarr_bytes": 475579284,
+      "zarr_files": 102,
+      "geff_bytes": 8888,
+      "geff_files": 21
+    },
+    "44b6_abf82518": {
+      "zarr_bytes": 429580884,
+      "zarr_files": 102,
+      "geff_bytes": 7969,
+      "geff_files": 21
+    },
+    "44b6_b2c44266": {
+      "zarr_bytes": 531018369,
+      "zarr_files": 102,
+      "geff_bytes": 8544,
+      "geff_files": 21
+    },
+    "44b6_c15fded2": {
+      "zarr_bytes": 442479736,
+      "zarr_files": 102,
+      "geff_bytes": 8045,
+      "geff_files": 21
+    },
+    "44b6_c50204e0": {
+      "zarr_bytes": 565311771,
+      "zarr_files": 102,
+      "geff_bytes": 9704,
+      "geff_files": 21
+    },
+    "44b6_c771cb04": {
+      "zarr_bytes": 575232437,
+      "zarr_files": 102,
+      "geff_bytes": 8974,
+      "geff_files": 21
+    },
+    "44b6_c8e2a523": {
+      "zarr_bytes": 466004648,
+      "zarr_files": 102,
+      "geff_bytes": 8579,
+      "geff_files": 21
+    },
+    "44b6_c96cfa10": {
+      "zarr_bytes": 502062575,
+      "zarr_files": 102,
+      "geff_bytes": 11417,
+      "geff_files": 21
+    },
+    "44b6_cf2536e8": {
+      "zarr_bytes": 516692705,
+      "zarr_files": 102,
+      "geff_bytes": 7714,
+      "geff_files": 21
+    },
+    "44b6_cf8fed6b": {
+      "zarr_bytes": 463357905,
+      "zarr_files": 102,
+      "geff_bytes": 8837,
+      "geff_files": 21
+    },
+    "44b6_d29c9ab2": {
+      "zarr_bytes": 492813035,
+      "zarr_files": 102,
+      "geff_bytes": 15698,
+      "geff_files": 21
+    },
+    "44b6_d2f34f90": {
+      "zarr_bytes": 500553470,
+      "zarr_files": 102,
+      "geff_bytes": 9284,
+      "geff_files": 21
+    },
+    "44b6_d5e7d891": {
+      "zarr_bytes": 545535218,
+      "zarr_files": 102,
+      "geff_bytes": 12933,
+      "geff_files": 21
+    },
+    "44b6_d754aa59": {
+      "zarr_bytes": 370169771,
+      "zarr_files": 102,
+      "geff_bytes": 7793,
+      "geff_files": 21
+    },
+    "44b6_d78e09d9": {
+      "zarr_bytes": 441825506,
+      "zarr_files": 102,
+      "geff_bytes": 10633,
+      "geff_files": 21
+    },
+    "44b6_db3c847b": {
+      "zarr_bytes": 446681470,
+      "zarr_files": 102,
+      "geff_bytes": 8592,
+      "geff_files": 21
+    },
+    "44b6_ddf577ad": {
+      "zarr_bytes": 519255171,
+      "zarr_files": 102,
+      "geff_bytes": 11474,
+      "geff_files": 21
+    },
+    "44b6_deabac95": {
+      "zarr_bytes": 390421570,
+      "zarr_files": 102,
+      "geff_bytes": 8262,
+      "geff_files": 21
+    },
+    "44b6_e28840c6": {
+      "zarr_bytes": 542007583,
+      "zarr_files": 102,
+      "geff_bytes": 9338,
+      "geff_files": 21
+    },
+    "44b6_e29f0176": {
+      "zarr_bytes": 372784970,
+      "zarr_files": 102,
+      "geff_bytes": 7641,
+      "geff_files": 21
+    },
+    "44b6_e31261b4": {
+      "zarr_bytes": 529394335,
+      "zarr_files": 102,
+      "geff_bytes": 8160,
+      "geff_files": 21
+    },
+    "44b6_e35b117d": {
+      "zarr_bytes": 539783775,
+      "zarr_files": 102,
+      "geff_bytes": 9382,
+      "geff_files": 21
+    },
+    "44b6_e57ff5c6": {
+      "zarr_bytes": 488046940,
+      "zarr_files": 102,
+      "geff_bytes": 8901,
+      "geff_files": 21
+    },
+    "44b6_eb2880fc": {
+      "zarr_bytes": 488171713,
+      "zarr_files": 102,
+      "geff_bytes": 10204,
+      "geff_files": 21
+    },
+    "44b6_f28707c6": {
+      "zarr_bytes": 463528105,
+      "zarr_files": 102,
+      "geff_bytes": 7791,
+      "geff_files": 21
+    },
+    "6bba_05b6850b": {
+      "zarr_bytes": 361668669,
+      "zarr_files": 102,
+      "geff_bytes": 12964,
+      "geff_files": 21
+    },
+    "6bba_05db0fb1": {
+      "zarr_bytes": 540242928,
+      "zarr_files": 102,
+      "geff_bytes": 15343,
+      "geff_files": 21
+    },
+    "6bba_062c8d37": {
+      "zarr_bytes": 341782153,
+      "zarr_files": 102,
+      "geff_bytes": 13521,
+      "geff_files": 21
+    },
+    "6bba_07477033": {
+      "zarr_bytes": 325484898,
+      "zarr_files": 102,
+      "geff_bytes": 11425,
+      "geff_files": 21
+    },
+    "6bba_07e24132": {
+      "zarr_bytes": 465682930,
+      "zarr_files": 102,
+      "geff_bytes": 9919,
+      "geff_files": 21
+    },
+    "6bba_085bf656": {
+      "zarr_bytes": 380726889,
+      "zarr_files": 102,
+      "geff_bytes": 15244,
+      "geff_files": 21
+    },
+    "6bba_09961292": {
+      "zarr_bytes": 400084214,
+      "zarr_files": 102,
+      "geff_bytes": 19957,
+      "geff_files": 21
+    },
+    "6bba_0c7fa718": {
+      "zarr_bytes": 371438547,
+      "zarr_files": 102,
+      "geff_bytes": 12016,
+      "geff_files": 21
+    },
+    "6bba_0e7c0d07": {
+      "zarr_bytes": 432565534,
+      "zarr_files": 102,
+      "geff_bytes": 8711,
+      "geff_files": 21
+    },
+    "6bba_12665c0e": {
+      "zarr_bytes": 358137475,
+      "zarr_files": 102,
+      "geff_bytes": 14705,
+      "geff_files": 21
+    },
+    "6bba_13f19531": {
+      "zarr_bytes": 356511511,
+      "zarr_files": 102,
+      "geff_bytes": 12431,
+      "geff_files": 21
+    },
+    "6bba_15403b9a": {
+      "zarr_bytes": 334482003,
+      "zarr_files": 102,
+      "geff_bytes": 12493,
+      "geff_files": 21
+    },
+    "6bba_1d0d8384": {
+      "zarr_bytes": 420082204,
+      "zarr_files": 102,
+      "geff_bytes": 17452,
+      "geff_files": 21
+    },
+    "6bba_1ebfb80d": {
+      "zarr_bytes": 391736321,
+      "zarr_files": 102,
+      "geff_bytes": 12226,
+      "geff_files": 21
+    },
+    "6bba_1f58c2f6": {
+      "zarr_bytes": 457984180,
+      "zarr_files": 102,
+      "geff_bytes": 9516,
+      "geff_files": 21
+    },
+    "6bba_207c6aaf": {
+      "zarr_bytes": 392166029,
+      "zarr_files": 102,
+      "geff_bytes": 10662,
+      "geff_files": 21
+    },
+    "6bba_20852818": {
+      "zarr_bytes": 378925732,
+      "zarr_files": 102,
+      "geff_bytes": 13737,
+      "geff_files": 21
+    },
+    "6bba_2312ac41": {
+      "zarr_bytes": 389511583,
+      "zarr_files": 102,
+      "geff_bytes": 14975,
+      "geff_files": 21
+    },
+    "6bba_23af9eeb": {
+      "zarr_bytes": 350812322,
+      "zarr_files": 102,
+      "geff_bytes": 10698,
+      "geff_files": 21
+    },
+    "6bba_2540cd90": {
+      "zarr_bytes": 326798894,
+      "zarr_files": 102,
+      "geff_bytes": 10739,
+      "geff_files": 21
+    },
+    "6bba_2646afc7": {
+      "zarr_bytes": 353490088,
+      "zarr_files": 102,
+      "geff_bytes": 12208,
+      "geff_files": 21
+    },
+    "6bba_268e1230": {
+      "zarr_bytes": 339424647,
+      "zarr_files": 102,
+      "geff_bytes": 11672,
+      "geff_files": 21
+    },
+    "6bba_2819ca14": {
+      "zarr_bytes": 329223531,
+      "zarr_files": 102,
+      "geff_bytes": 14219,
+      "geff_files": 21
+    },
+    "6bba_283bf9f1": {
+      "zarr_bytes": 425991994,
+      "zarr_files": 102,
+      "geff_bytes": 16629,
+      "geff_files": 21
+    },
+    "6bba_312f0dc3": {
+      "zarr_bytes": 370352855,
+      "zarr_files": 102,
+      "geff_bytes": 10809,
+      "geff_files": 21
+    },
+    "6bba_32db13fc": {
+      "zarr_bytes": 477612258,
+      "zarr_files": 102,
+      "geff_bytes": 13137,
+      "geff_files": 21
+    },
+    "6bba_337b1b3a": {
+      "zarr_bytes": 459625871,
+      "zarr_files": 102,
+      "geff_bytes": 15601,
+      "geff_files": 21
+    },
+    "6bba_372c8cb8": {
+      "zarr_bytes": 365395302,
+      "zarr_files": 102,
+      "geff_bytes": 14216,
+      "geff_files": 21
+    },
+    "6bba_3a1849c2": {
+      "zarr_bytes": 361186029,
+      "zarr_files": 102,
+      "geff_bytes": 14907,
+      "geff_files": 21
+    },
+    "6bba_3abfe10a": {
+      "zarr_bytes": 539403678,
+      "zarr_files": 102,
+      "geff_bytes": 13841,
+      "geff_files": 21
+    },
+    "6bba_3c5691b6": {
+      "zarr_bytes": 364822686,
+      "zarr_files": 102,
+      "geff_bytes": 12311,
+      "geff_files": 21
+    },
+    "6bba_3db54e20": {
+      "zarr_bytes": 443248483,
+      "zarr_files": 102,
+      "geff_bytes": 10857,
+      "geff_files": 21
+    },
+    "6bba_3fda6b25": {
+      "zarr_bytes": 378285046,
+      "zarr_files": 102,
+      "geff_bytes": 15396,
+      "geff_files": 21
+    },
+    "6bba_43fea39d": {
+      "zarr_bytes": 317108747,
+      "zarr_files": 102,
+      "geff_bytes": 13709,
+      "geff_files": 21
+    },
+    "6bba_474be664": {
+      "zarr_bytes": 536288900,
+      "zarr_files": 102,
+      "geff_bytes": 9345,
+      "geff_files": 21
+    },
+    "6bba_48816121": {
+      "zarr_bytes": 429597138,
+      "zarr_files": 102,
+      "geff_bytes": 13618,
+      "geff_files": 21
+    },
+    "6bba_4aa14c89": {
+      "zarr_bytes": 375599449,
+      "zarr_files": 102,
+      "geff_bytes": 12125,
+      "geff_files": 21
+    },
+    "6bba_4f99ce20": {
+      "zarr_bytes": 347270978,
+      "zarr_files": 102,
+      "geff_bytes": 14388,
+      "geff_files": 21
+    },
+    "6bba_4ffd3da3": {
+      "zarr_bytes": 386003937,
+      "zarr_files": 102,
+      "geff_bytes": 12246,
+      "geff_files": 21
+    },
+    "6bba_55b7eebe": {
+      "zarr_bytes": 386832188,
+      "zarr_files": 102,
+      "geff_bytes": 11870,
+      "geff_files": 21
+    },
+    "6bba_55c70843": {
+      "zarr_bytes": 492410828,
+      "zarr_files": 102,
+      "geff_bytes": 10611,
+      "geff_files": 21
+    },
+    "6bba_57b7cc1e": {
+      "zarr_bytes": 551751513,
+      "zarr_files": 102,
+      "geff_bytes": 18027,
+      "geff_files": 21
+    },
+    "6bba_5a4d9360": {
+      "zarr_bytes": 333698472,
+      "zarr_files": 102,
+      "geff_bytes": 12510,
+      "geff_files": 21
+    },
+    "6bba_5b28472a": {
+      "zarr_bytes": 361337573,
+      "zarr_files": 102,
+      "geff_bytes": 12132,
+      "geff_files": 21
+    },
+    "6bba_5c039895": {
+      "zarr_bytes": 381776867,
+      "zarr_files": 102,
+      "geff_bytes": 15323,
+      "geff_files": 21
+    },
+    "6bba_5c824876": {
+      "zarr_bytes": 442682577,
+      "zarr_files": 102,
+      "geff_bytes": 15179,
+      "geff_files": 21
+    },
+    "6bba_5dfe9ad1": {
+      "zarr_bytes": 451477177,
+      "zarr_files": 102,
+      "geff_bytes": 17370,
+      "geff_files": 21
+    },
+    "6bba_5f89039d": {
+      "zarr_bytes": 349630666,
+      "zarr_files": 102,
+      "geff_bytes": 13272,
+      "geff_files": 21
+    },
+    "6bba_61dd1e0d": {
+      "zarr_bytes": 411186738,
+      "zarr_files": 102,
+      "geff_bytes": 11034,
+      "geff_files": 21
+    },
+    "6bba_61ecbe65": {
+      "zarr_bytes": 333237600,
+      "zarr_files": 102,
+      "geff_bytes": 11677,
+      "geff_files": 21
+    },
+    "6bba_6321a359": {
+      "zarr_bytes": 356409674,
+      "zarr_files": 102,
+      "geff_bytes": 12755,
+      "geff_files": 21
+    },
+    "6bba_6479435d": {
+      "zarr_bytes": 410737206,
+      "zarr_files": 102,
+      "geff_bytes": 11488,
+      "geff_files": 21
+    },
+    "6bba_67ebd073": {
+      "zarr_bytes": 402989597,
+      "zarr_files": 102,
+      "geff_bytes": 10481,
+      "geff_files": 21
+    },
+    "6bba_6ca87370": {
+      "zarr_bytes": 358358550,
+      "zarr_files": 102,
+      "geff_bytes": 14472,
+      "geff_files": 21
+    },
+    "6bba_6db0e9b4": {
+      "zarr_bytes": 489138420,
+      "zarr_files": 102,
+      "geff_bytes": 10284,
+      "geff_files": 21
+    },
+    "6bba_6feb10f0": {
+      "zarr_bytes": 460151383,
+      "zarr_files": 102,
+      "geff_bytes": 16563,
+      "geff_files": 21
+    },
+    "6bba_6feeb0b1": {
+      "zarr_bytes": 361653992,
+      "zarr_files": 102,
+      "geff_bytes": 16407,
+      "geff_files": 21
+    },
+    "6bba_705ec2c9": {
+      "zarr_bytes": 318700700,
+      "zarr_files": 102,
+      "geff_bytes": 11298,
+      "geff_files": 21
+    },
+    "6bba_718b21f9": {
+      "zarr_bytes": 343568373,
+      "zarr_files": 102,
+      "geff_bytes": 11651,
+      "geff_files": 21
+    },
+    "6bba_74686d6a": {
+      "zarr_bytes": 490294349,
+      "zarr_files": 102,
+      "geff_bytes": 11236,
+      "geff_files": 21
+    },
+    "6bba_767a1e17": {
+      "zarr_bytes": 524244316,
+      "zarr_files": 102,
+      "geff_bytes": 11804,
+      "geff_files": 21
+    },
+    "6bba_76db78c1": {
+      "zarr_bytes": 353904769,
+      "zarr_files": 102,
+      "geff_bytes": 11351,
+      "geff_files": 21
+    },
+    "6bba_784a78c9": {
+      "zarr_bytes": 400400318,
+      "zarr_files": 102,
+      "geff_bytes": 19002,
+      "geff_files": 21
+    },
+    "6bba_786893ac": {
+      "zarr_bytes": 552881058,
+      "zarr_files": 102,
+      "geff_bytes": 16870,
+      "geff_files": 21
+    },
+    "6bba_789f8168": {
+      "zarr_bytes": 362281690,
+      "zarr_files": 102,
+      "geff_bytes": 12121,
+      "geff_files": 21
+    },
+    "6bba_78a7bd97": {
+      "zarr_bytes": 499339098,
+      "zarr_files": 102,
+      "geff_bytes": 13219,
+      "geff_files": 21
+    },
+    "6bba_7af54fde": {
+      "zarr_bytes": 392961709,
+      "zarr_files": 102,
+      "geff_bytes": 14694,
+      "geff_files": 21
+    },
+    "6bba_7b5d3b2c": {
+      "zarr_bytes": 404590757,
+      "zarr_files": 102,
+      "geff_bytes": 10990,
+      "geff_files": 21
+    },
+    "6bba_7d3058ae": {
+      "zarr_bytes": 362091795,
+      "zarr_files": 102,
+      "geff_bytes": 15120,
+      "geff_files": 21
+    },
+    "6bba_7f87b3d8": {
+      "zarr_bytes": 372621981,
+      "zarr_files": 102,
+      "geff_bytes": 14040,
+      "geff_files": 21
+    },
+    "6bba_80d12824": {
+      "zarr_bytes": 376461447,
+      "zarr_files": 102,
+      "geff_bytes": 11957,
+      "geff_files": 21
+    },
+    "6bba_825bd1c6": {
+      "zarr_bytes": 357347814,
+      "zarr_files": 102,
+      "geff_bytes": 13693,
+      "geff_files": 21
+    },
+    "6bba_87289e13": {
+      "zarr_bytes": 402491165,
+      "zarr_files": 102,
+      "geff_bytes": 12498,
+      "geff_files": 21
+    },
+    "6bba_8b7818bf": {
+      "zarr_bytes": 352063249,
+      "zarr_files": 102,
+      "geff_bytes": 12352,
+      "geff_files": 21
+    },
+    "6bba_907271db": {
+      "zarr_bytes": 368257600,
+      "zarr_files": 102,
+      "geff_bytes": 13654,
+      "geff_files": 21
+    },
+    "6bba_91951b3a": {
+      "zarr_bytes": 368011173,
+      "zarr_files": 102,
+      "geff_bytes": 15220,
+      "geff_files": 21
+    },
+    "6bba_96833384": {
+      "zarr_bytes": 346392310,
+      "zarr_files": 102,
+      "geff_bytes": 12364,
+      "geff_files": 21
+    },
+    "6bba_969618f6": {
+      "zarr_bytes": 387679675,
+      "zarr_files": 102,
+      "geff_bytes": 12141,
+      "geff_files": 21
+    },
+    "6bba_971fa5e0": {
+      "zarr_bytes": 336233865,
+      "zarr_files": 102,
+      "geff_bytes": 13038,
+      "geff_files": 21
+    },
+    "6bba_9a41d029": {
+      "zarr_bytes": 431928222,
+      "zarr_files": 102,
+      "geff_bytes": 16498,
+      "geff_files": 21
+    },
+    "6bba_9e23430b": {
+      "zarr_bytes": 388850863,
+      "zarr_files": 102,
+      "geff_bytes": 13345,
+      "geff_files": 21
+    },
+    "6bba_a5e926bb": {
+      "zarr_bytes": 368194143,
+      "zarr_files": 102,
+      "geff_bytes": 12293,
+      "geff_files": 21
+    },
+    "6bba_a90a0b9c": {
+      "zarr_bytes": 506902329,
+      "zarr_files": 102,
+      "geff_bytes": 15184,
+      "geff_files": 21
+    },
+    "6bba_ab78413d": {
+      "zarr_bytes": 457336768,
+      "zarr_files": 102,
+      "geff_bytes": 15147,
+      "geff_files": 21
+    },
+    "6bba_acd782a8": {
+      "zarr_bytes": 390771704,
+      "zarr_files": 102,
+      "geff_bytes": 9741,
+      "geff_files": 21
+    },
+    "6bba_ae82a791": {
+      "zarr_bytes": 358934010,
+      "zarr_files": 102,
+      "geff_bytes": 17354,
+      "geff_files": 21
+    },
+    "6bba_aeee7805": {
+      "zarr_bytes": 351791970,
+      "zarr_files": 102,
+      "geff_bytes": 12665,
+      "geff_files": 21
+    },
+    "6bba_af149c94": {
+      "zarr_bytes": 380294843,
+      "zarr_files": 102,
+      "geff_bytes": 16185,
+      "geff_files": 21
+    },
+    "6bba_afb141ff": {
+      "zarr_bytes": 324198678,
+      "zarr_files": 102,
+      "geff_bytes": 11714,
+      "geff_files": 21
+    },
+    "6bba_b1ae37b9": {
+      "zarr_bytes": 409019461,
+      "zarr_files": 102,
+      "geff_bytes": 11208,
+      "geff_files": 21
+    },
+    "6bba_b204cac7": {
+      "zarr_bytes": 358384772,
+      "zarr_files": 102,
+      "geff_bytes": 12580,
+      "geff_files": 21
+    },
+    "6bba_b329af44": {
+      "zarr_bytes": 539582471,
+      "zarr_files": 102,
+      "geff_bytes": 15971,
+      "geff_files": 21
+    },
+    "6bba_b693381b": {
+      "zarr_bytes": 345372264,
+      "zarr_files": 102,
+      "geff_bytes": 13794,
+      "geff_files": 21
+    },
+    "6bba_bb9f20c3": {
+      "zarr_bytes": 403401162,
+      "zarr_files": 102,
+      "geff_bytes": 20060,
+      "geff_files": 21
+    },
+    "6bba_bbb708ca": {
+      "zarr_bytes": 338000432,
+      "zarr_files": 102,
+      "geff_bytes": 13240,
+      "geff_files": 21
+    },
+    "6bba_c27cba08": {
+      "zarr_bytes": 344525471,
+      "zarr_files": 102,
+      "geff_bytes": 10801,
+      "geff_files": 21
+    },
+    "6bba_c328f2fd": {
+      "zarr_bytes": 452924734,
+      "zarr_files": 102,
+      "geff_bytes": 10781,
+      "geff_files": 21
+    },
+    "6bba_c73a1d11": {
+      "zarr_bytes": 414105331,
+      "zarr_files": 102,
+      "geff_bytes": 12663,
+      "geff_files": 21
+    },
+    "6bba_cdcfe533": {
+      "zarr_bytes": 451182976,
+      "zarr_files": 102,
+      "geff_bytes": 16485,
+      "geff_files": 21
+    },
+    "6bba_cf35214c": {
+      "zarr_bytes": 474042573,
+      "zarr_files": 102,
+      "geff_bytes": 12928,
+      "geff_files": 21
+    },
+    "6bba_cff5865f": {
+      "zarr_bytes": 475497142,
+      "zarr_files": 102,
+      "geff_bytes": 17874,
+      "geff_files": 21
+    },
+    "6bba_d0fc38b5": {
+      "zarr_bytes": 360975902,
+      "zarr_files": 102,
+      "geff_bytes": 12838,
+      "geff_files": 21
+    },
+    "6bba_d1acb6ff": {
+      "zarr_bytes": 378615185,
+      "zarr_files": 102,
+      "geff_bytes": 12171,
+      "geff_files": 21
+    },
+    "6bba_d2b9fc0c": {
+      "zarr_bytes": 404821996,
+      "zarr_files": 102,
+      "geff_bytes": 13656,
+      "geff_files": 21
+    },
+    "6bba_d3da753b": {
+      "zarr_bytes": 382530438,
+      "zarr_files": 102,
+      "geff_bytes": 13716,
+      "geff_files": 21
+    },
+    "6bba_d5eae175": {
+      "zarr_bytes": 339047376,
+      "zarr_files": 102,
+      "geff_bytes": 10715,
+      "geff_files": 21
+    },
+    "6bba_d6ecebbb": {
+      "zarr_bytes": 335166055,
+      "zarr_files": 102,
+      "geff_bytes": 13198,
+      "geff_files": 21
+    },
+    "6bba_d82a4fc6": {
+      "zarr_bytes": 467636822,
+      "zarr_files": 102,
+      "geff_bytes": 11019,
+      "geff_files": 21
+    },
+    "6bba_debd7bfa": {
+      "zarr_bytes": 377180189,
+      "zarr_files": 102,
+      "geff_bytes": 12752,
+      "geff_files": 21
+    },
+    "6bba_df673a83": {
+      "zarr_bytes": 404547713,
+      "zarr_files": 102,
+      "geff_bytes": 11813,
+      "geff_files": 21
+    },
+    "6bba_e16ffc58": {
+      "zarr_bytes": 357648954,
+      "zarr_files": 102,
+      "geff_bytes": 14074,
+      "geff_files": 21
+    },
+    "6bba_e5e44988": {
+      "zarr_bytes": 353738117,
+      "zarr_files": 102,
+      "geff_bytes": 12118,
+      "geff_files": 21
+    },
+    "6bba_ebdf3b34": {
+      "zarr_bytes": 490572114,
+      "zarr_files": 102,
+      "geff_bytes": 13110,
+      "geff_files": 21
+    },
+    "6bba_ebff6e76": {
+      "zarr_bytes": 505296099,
+      "zarr_files": 102,
+      "geff_bytes": 16307,
+      "geff_files": 21
+    },
+    "6bba_ed9377fd": {
+      "zarr_bytes": 343487378,
+      "zarr_files": 102,
+      "geff_bytes": 10938,
+      "geff_files": 21
+    },
+    "6bba_edf14583": {
+      "zarr_bytes": 524341000,
+      "zarr_files": 102,
+      "geff_bytes": 12585,
+      "geff_files": 21
+    },
+    "6bba_eebc57a5": {
+      "zarr_bytes": 392719071,
+      "zarr_files": 102,
+      "geff_bytes": 14089,
+      "geff_files": 21
+    },
+    "6bba_ef7b4f7e": {
+      "zarr_bytes": 348434711,
+      "zarr_files": 102,
+      "geff_bytes": 15596,
+      "geff_files": 21
+    },
+    "6bba_f17befbc": {
+      "zarr_bytes": 421894253,
+      "zarr_files": 102,
+      "geff_bytes": 14446,
+      "geff_files": 21
+    },
+    "6bba_f1fde7e0": {
+      "zarr_bytes": 353919079,
+      "zarr_files": 102,
+      "geff_bytes": 10519,
+      "geff_files": 21
+    },
+    "6bba_f20478e9": {
+      "zarr_bytes": 352854964,
+      "zarr_files": 102,
+      "geff_bytes": 14368,
+      "geff_files": 21
+    },
+    "6bba_f4ae811c": {
+      "zarr_bytes": 371013137,
+      "zarr_files": 102,
+      "geff_bytes": 14049,
+      "geff_files": 21
+    },
+    "6bba_f8ffd5e7": {
+      "zarr_bytes": 468961181,
+      "zarr_files": 102,
+      "geff_bytes": 10144,
+      "geff_files": 21
+    },
+    "6bba_fbc898dc": {
+      "zarr_bytes": 340236936,
+      "zarr_files": 102,
+      "geff_bytes": 11669,
+      "geff_files": 21
+    },
+    "6bba_fc516dc6": {
+      "zarr_bytes": 371747462,
+      "zarr_files": 102,
+      "geff_bytes": 12743,
+      "geff_files": 21
+    },
+    "6bba_fc5f39dc": {
+      "zarr_bytes": 378386783,
+      "zarr_files": 102,
+      "geff_bytes": 10502,
+      "geff_files": 21
+    },
+    "6bba_fc83837d": {
+      "zarr_bytes": 400026564,
+      "zarr_files": 102,
+      "geff_bytes": 14114,
+      "geff_files": 21
+    },
+    "6bba_fe670320": {
+      "zarr_bytes": 379179756,
+      "zarr_files": 102,
+      "geff_bytes": 12040,
+      "geff_files": 21
+    }
+  },
+  "test": {
+    "44b6_0113de3b": {
+      "zarr_bytes": 456757564,
+      "zarr_files": 102,
+      "geff_bytes": 0,
+      "geff_files": 0
+    },
+    "44b6_0b24845f": {
+      "zarr_bytes": 547662847,
+      "zarr_files": 102,
+      "geff_bytes": 0,
+      "geff_files": 0
+    },
+    "6bba_05b6850b": {
+      "zarr_bytes": 361668669,
+      "zarr_files": 102,
+      "geff_bytes": 0,
+      "geff_files": 0
+    },
+    "6bba_05db0fb1": {
+      "zarr_bytes": 540242928,
+      "zarr_files": 102,
+      "geff_bytes": 0,
+      "geff_files": 0
+    }
+  },
+  "other": [
+    [
+      "sample_submission.csv",
+      890
+    ]
+  ]
+}

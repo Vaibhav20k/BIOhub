@@ -1,0 +1,49 @@
+# Storage-Efficient Chunked Workflow Configuration
+# Governs progressive 3-5 GB dataset chunking, continuous fine-tuning, and disk safety
+
+competition:
+  name: "biohub-cell-tracking-during-development"
+  catalog_file: "dataset_catalog.json"
+
+storage:
+  staging_dir: "data/chunks"
+  min_free_disk_gb: 25.0       # Hard abort if free space falls below this limit
+  max_chunk_size_gb: 5.5       # Upper ceiling on any single downloaded chunk
+  target_sequences_per_chunk: 8 # Average ~410 MB per sequence -> ~3.3 GB per chunk
+  verify_recovery: true        # Verify disk space is reclaimed after cleanup
+
+registry:
+  sqlite_path: "registry/experiments.sqlite"
+  jsonl_path: "registry/chunk_registry.jsonl"
+  manifest_path: "registry/chunk_manifest.json"
+
+validation:
+  val_ratio: 0.15              # 15% of sequences permanently held out (~29 sequences)
+  seed: 42
+  stratify_by: "embryo"        # Stratified across '44b6' and '6bba'
+  quick_eval_sequences: 2      # Fast benchmark evaluated after every chunk (1 per embryo)
+  full_eval_interval_chunks: 5 # Run full held-out pool every N chunks
+
+training:
+  detector:
+    base_lr: 0.0005
+    lr_decay_per_chunk: 0.95   # Smooth decay to stabilize sequential learning
+    epochs_per_chunk: 5
+    batch_size: 2
+    patch_size: [2, 32, 128, 128]
+    use_amp: true
+  tracker:
+    base_lr: 0.0003
+    lr_decay_per_chunk: 0.95
+    epochs_per_chunk: 5
+    hidden_dim: 128
+    num_layers: 2
+    max_distance_um: 7.0
+
+checkpoints:
+  best_detector: "checkpoints/best_detector.pt"
+  best_tracker: "checkpoints/best_tracker.pt"
+  latest_detector: "checkpoints/latest_detector.pt"
+  latest_tracker: "checkpoints/latest_tracker.pt"
+  archive_dir: "checkpoints/archive"
+  rollback_threshold_drop: 0.15 # Roll back if validation score drops > 15%

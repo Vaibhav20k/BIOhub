@@ -75,3 +75,18 @@ python scripts/view_dataset.py --dataset 44b6_0b24845f --headless
 python scripts/generate_submission.py --datasets 44b6_0b24845f --output submission.csv --threshold 0.5
 ```
 
+### Storage-Efficient Chunked Workflow (180 GB Progressive Ingestion)
+```bash
+# Initialize stratified chunk manifest and SQLite registry
+python scripts/run_chunked_workflow.py --init
+
+# Check current workflow progress, disk usage, and validation scores
+python scripts/run_chunked_workflow.py --status
+
+# Process the next pending 3-5 GB chunk (download -> verify -> fine-tune -> evaluate -> cleanup)
+python scripts/run_chunked_workflow.py --process-next
+
+# Run dry-run simulation using local fixtures
+python scripts/run_chunked_workflow.py --dry-run
+```
+
