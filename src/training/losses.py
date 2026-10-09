@@ -63,9 +63,10 @@ class ModifiedFocalLoss(nn.Module):
         neg_loss = -neg_weights * torch.log(1.0 - pred) * neg_mask
 
         num_pos = max(1.0, float(pos_mask.sum().item()))
-        num_neg = max(1.0, float(neg_mask.sum().item()))
 
-        loss = (pos_loss.sum() / num_pos) + (neg_loss.sum() / num_neg)
+        # Normalize both positive and negative loss by num_pos (CenterNet / CornerNet standard)
+        # Prevents negative loss from vanishing due to extreme class imbalance (~500,000 : 1)
+        loss = (pos_loss.sum() + neg_loss.sum()) / num_pos
         return loss
 
 

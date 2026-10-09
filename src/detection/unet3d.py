@@ -1,5 +1,6 @@
 """3D Temporal U-Net for volumetric cell detection and feature extraction."""
 
+import math
 from typing import Dict, List, Optional, Tuple, Union
 
 import torch
@@ -79,6 +80,7 @@ class TemporalUNet3D(nn.Module):
         use_temporal_attention: bool = True,
         num_attention_heads: int = 4,
         out_activation: str = "sigmoid",
+        prior_prob: float = 0.05,
     ):
         """
         Args:
@@ -130,6 +132,17 @@ class TemporalUNet3D(nn.Module):
         # Prediction Heads
         self.heatmap_head = nn.Conv3d(c1, 1, kernel_size=1)
         self.feature_head = nn.Conv3d(c1, feature_dim, kernel_size=1)
+
+        # Initialize heatmap head with focal loss prior (pi = 0.05 -> bias = -2.944)
+        # Prevents initial high background probability (sigma(-2.944) = 0.05) while avoiding saturation
+        bias_val = -2.944 if abs(prior_prob - 0.05) < 1e-4 else float(math.log(prior_prob / (1.0 - prior_prob)))
+        nn.init.constant_(self.heatmap_head.bias, bias_val)
+        nn.init.normal_(self.heatmap_head.weight, mean=0.0, std=0.01)
+
+        # Initialize feature head
+        nn.init.kaiming_normal_(self.feature_head.weight, mode="fan_out", nonlinearity="relu")
+        if self.feature_head.bias is not None:
+            nn.init.zeros_(self.feature_head.bias)
 
     def forward(
         self,

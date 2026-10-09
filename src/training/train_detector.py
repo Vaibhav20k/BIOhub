@@ -57,6 +57,9 @@ def run_overfit_verification(
 ) -> bool:
     """Run an overfit check on a single fixed patch to verify model capacity and gradient flow."""
     logger.info("=== Starting Overfit Verification Check ===")
+    torch.manual_seed(42)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(42)
     det_dataset = DetectionDataset(
         dataset=dataset,
         patch_size=patch_size,

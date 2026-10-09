@@ -89,10 +89,19 @@ class DetectionDataset(Dataset):
                 image = torch.rot90(image, k=k_rot, dims=[3, 4])
                 heatmap = torch.rot90(heatmap, k=k_rot, dims=[3, 4])
 
-            # 4. Intensity jitter on image only
-            scale_factor = float(self.rng.uniform(0.85, 1.15))
-            shift_factor = float(self.rng.uniform(-0.05, 0.05))
-            image = torch.clamp(image * scale_factor + shift_factor, 0.0, 1.0)
+            # 4. Controlled Photometric Microscopy Augmentations (Image Only)
+            # a. Contrast jitter: ±15% around patch mean intensity
+            alpha = float(self.rng.uniform(0.85, 1.15))
+            img_mean = float(image.mean())
+            image = (image - img_mean) * alpha + img_mean
+
+            # b. Brightness jitter: ±15% additive shift
+            beta = float(self.rng.uniform(-0.15, 0.15))
+            image = image + beta
+
+            # c. Random background offset: simulating baseline fluorescence shifts (±10%)
+            bg_offset = float(self.rng.uniform(-0.10, 0.10))
+            image = torch.clamp(image + bg_offset, 0.0, 1.0)
 
         # Frame supervision mask: 1.0 if frame has annotations or is within annotated window
         frame_mask = torch.ones((1, W, 1, 1, 1, 1), dtype=torch.float32)

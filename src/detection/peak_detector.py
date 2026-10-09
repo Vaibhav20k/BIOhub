@@ -34,6 +34,7 @@ class PeakDetector3D:
         subpixel: bool = True,
         scale: Tuple[float, float, float] = DEFAULT_SCALE,
         max_peaks_per_frame: Optional[int] = None,
+        diagnostic_mode: bool = False,
     ):
         """
         Args:
@@ -42,18 +43,21 @@ class PeakDetector3D:
             subpixel: Whether to apply 3D quadratic Taylor refinement for sub-voxel accuracy.
             scale: Physical scale (s_z, s_y, s_x) in micrometers.
             max_peaks_per_frame: Optional maximum number of highest-scoring peaks to retain per frame.
+            diagnostic_mode: If True, bypasses top-K truncation to evaluate unconstrained peak generation.
         """
         self.threshold = threshold
         self.min_distance = min_distance
         self.subpixel = subpixel
         self.scale = scale
         self.max_peaks_per_frame = max_peaks_per_frame
+        self.diagnostic_mode = diagnostic_mode
 
     def extract_peaks_3d(
         self,
         heatmap: np.ndarray,
         threshold: Optional[float] = None,
         max_peaks: Optional[int] = None,
+        diagnostic_mode: Optional[bool] = None,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Extract local maxima coordinates and confidence scores from a 3D heatmap.
 
@@ -61,13 +65,15 @@ class PeakDetector3D:
             heatmap: (Z, Y, X) float32 probability volume.
             threshold: Optional threshold override.
             max_peaks: Optional limit on the number of highest-scoring peaks to retain.
+            diagnostic_mode: Optional override for diagnostic unconstrained mode.
 
         Returns:
             coords: (N, 3) float32 array of [z, y, x] peak coordinates.
             scores: (N,) float32 array of peak values.
         """
         thresh = threshold if threshold is not None else self.threshold
-        limit = max_peaks if max_peaks is not None else self.max_peaks_per_frame
+        is_diag = diagnostic_mode if diagnostic_mode is not None else self.diagnostic_mode
+        limit = None if is_diag else (max_peaks if max_peaks is not None else self.max_peaks_per_frame)
         Z, Y, X = heatmap.shape
 
         # 3D Maximum Filter (Non-Maximum Suppression)
@@ -83,7 +89,7 @@ class PeakDetector3D:
 
         scores = heatmap[is_peak].astype(np.float32)
 
-        # Retain top-K highest scoring peaks if requested
+        # Retain top-K highest scoring peaks only if NOT in diagnostic mode
         if limit is not None and len(peak_indices) > limit:
             top_k_indices = np.argpartition(-scores, limit)[:limit]
             sorted_order = np.argsort(-scores[top_k_indices])
@@ -134,6 +140,7 @@ class PeakDetector3D:
         device: torch.device,
         timepoints: Optional[List[int]] = None,
         threshold: Optional[float] = None,
+        window_size: int = 1,
         batch_size: int = 1,
     ) -> pl.DataFrame:
         """Run full-volume detector inference across specified timepoints and extract peaks.
@@ -144,6 +151,7 @@ class PeakDetector3D:
             device: Compute device (cuda or cpu).
             timepoints: List of frame indices to detect (defaults to all timepoints).
             threshold: Detection probability cutoff.
+            window_size: Temporal window size (1 for spatial-only, 2 for temporal attention).
             batch_size: Batch size of frames to evaluate.
 
         Returns:
@@ -160,22 +168,46 @@ class PeakDetector3D:
 
         with torch.no_grad():
             for t in timepoints:
-                # Read 3D volume at timepoint t
-                vol_crop = dataset.read_spatial_crop(
-                    slice(t, t + 1),
-                    slice(None),
-                    slice(None),
-                    slice(None),
-                )  # (1, Z, Y, X)
+                if window_size == 1 or dataset.shape[0] < 2:
+                    # Single-frame inference (W=1): (1, C, Z, Y, X)
+                    vol_crop = dataset.read_spatial_crop(
+                        slice(t, t + 1),
+                        slice(None),
+                        slice(None),
+                        slice(None),
+                    )  # (1, Z, Y, X)
+                    vol_norm = normalize_intensity(vol_crop, quantiles=dataset.quantiles)
+                    # Shape: (1, 1, Z, Y, X)
+                    inp = torch.from_numpy(vol_norm).unsqueeze(0).to(device)
 
-                vol_norm = normalize_intensity(vol_crop, quantiles=dataset.quantiles)
-                # Shape: (1, 1, Z, Y, X)
-                inp = torch.from_numpy(vol_norm).unsqueeze(0).to(device)
+                    with autocast(device_type=device.type, enabled=(device.type == "cuda")):
+                        pred_hm, _ = model(inp)
 
-                with autocast(device_type=device.type, enabled=(device.type == "cuda")):
-                    pred_hm, _ = model(inp)
+                    hm_3d = pred_hm[0, 0].cpu().numpy().astype(np.float32)  # (Z, Y, X)
+                else:
+                    # Multi-frame inference (W=2): consistent temporal window
+                    if t < dataset.shape[0] - 1:
+                        t_start, t_end = t, t + 2
+                        target_frame_idx = 0
+                    else:
+                        t_start, t_end = max(0, t - 1), t + 1
+                        target_frame_idx = 1
 
-                hm_3d = pred_hm[0, 0].cpu().numpy().astype(np.float32)  # (Z, Y, X)
+                    vol_crop = dataset.read_spatial_crop(
+                        slice(t_start, t_end),
+                        slice(None),
+                        slice(None),
+                        slice(None),
+                    )  # (2, Z, Y, X)
+                    vol_norm = normalize_intensity(vol_crop, quantiles=dataset.quantiles)
+                    # Shape: (1, 1, W, Z, Y, X)
+                    inp = torch.from_numpy(vol_norm).unsqueeze(0).unsqueeze(0).to(device)
+
+                    with autocast(device_type=device.type, enabled=(device.type == "cuda")):
+                        pred_hm, _ = model(inp)
+
+                    # Extract target frame heatmap: pred_hm is (1, W, 1, Z, Y, X)
+                    hm_3d = pred_hm[0, target_frame_idx, 0].cpu().numpy().astype(np.float32)
 
                 peaks, scores = self.extract_peaks_3d(hm_3d, threshold=thresh)
 
