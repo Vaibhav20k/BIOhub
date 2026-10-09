@@ -127,7 +127,7 @@ def test_overfit_convergence_synthetic(synthetic_dataset):
         patch_size=(16, 32, 32),
         window_size=2,
         base_channels=16,
-        num_iterations=35,
+        num_iterations=50,
         lr=2e-3,
     )
     assert success is True

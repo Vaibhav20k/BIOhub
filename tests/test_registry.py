@@ -44,6 +44,13 @@ def test_registry_lifecycle(tmp_path: Path):
     next_chunk.epochs_trained = 5
     next_chunk.train_loss_detector = 0.0025
     next_chunk.val_final_score = 0.85
+    next_chunk.val_node_tp = 100
+    next_chunk.val_node_fp = 10
+    next_chunk.val_node_fn = 5
+    next_chunk.val_edge_jaccard = 0.78
+    next_chunk.training_config = {"detector_lr": 0.0005, "epochs": 5}
+    next_chunk.inference_time_sec = 12.3
+    next_chunk.ilp_runtime_sec = 1.45
     next_chunk.promoted_to_best = True
     next_chunk.disk_freed_bytes = 800_000_000
     next_chunk.cleanup_verified = True
@@ -54,6 +61,13 @@ def test_registry_lifecycle(tmp_path: Path):
     assert fetched is not None
     assert fetched.status == "CLEANED_UP"
     assert fetched.val_final_score == 0.85
+    assert fetched.val_node_tp == 100
+    assert fetched.val_node_fp == 10
+    assert fetched.val_node_fn == 5
+    assert fetched.val_edge_jaccard == 0.78
+    assert fetched.training_config == {"detector_lr": 0.0005, "epochs": 5}
+    assert fetched.inference_time_sec == pytest.approx(12.3)
+    assert fetched.ilp_runtime_sec == pytest.approx(1.45)
     assert fetched.promoted_to_best is True
     assert fetched.cleanup_verified is True
 
