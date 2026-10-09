@@ -32,6 +32,7 @@ class EndToEndSubmissionPipeline:
         max_distance_um: float = 7.0,
         allow_skips: bool = False,
         round_coordinates: bool = True,
+        window_size: int = 1,
         device: Optional[torch.device] = None,
     ):
         """
@@ -43,6 +44,7 @@ class EndToEndSubmissionPipeline:
             max_distance_um: Candidate matching radius.
             allow_skips: Whether to build 2-frame skip candidate edges.
             round_coordinates: Round voxel coordinates in submission CSV.
+            window_size: Temporal window size for detector (default: 1).
             device: Compute device.
         """
         self.device = device or torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -51,6 +53,7 @@ class EndToEndSubmissionPipeline:
         self.max_distance_um = max_distance_um
         self.allow_skips = allow_skips
         self.round_coordinates = round_coordinates
+        self.window_size = window_size
 
         logger.info(f"Initializing submission pipeline on device: {self.device}")
 
@@ -58,11 +61,12 @@ class EndToEndSubmissionPipeline:
         det_path = Path(detector_checkpoint)
         assert det_path.exists(), f"Detector checkpoint not found at {det_path}"
         ckpt_det = torch.load(det_path, map_location=self.device)
+        use_temporal_attn = ckpt_det.get("config", {}).get("use_temporal_attention", False)
         self.detector = TemporalUNet3D(
             in_channels=1,
             base_channels=ckpt_det.get("config", {}).get("base_channels", 16),
             feature_dim=ckpt_det.get("config", {}).get("feature_dim", 32),
-            use_temporal_attention=True,
+            use_temporal_attention=use_temporal_attn,
         ).to(self.device)
         self.detector.load_state_dict(ckpt_det["model_state_dict"])
         self.detector.eval()
@@ -132,6 +136,7 @@ class EndToEndSubmissionPipeline:
                 dataset=dataset,
                 device=self.device,
                 timepoints=active_t,
+                window_size=self.window_size,
             )
             logger.info(f"[{dataset.name}] Extracted {nodes_df.height} peaks across {len(active_t)} frames.")
 

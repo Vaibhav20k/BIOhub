@@ -59,11 +59,12 @@ class ContinualTrainer:
 
         # Load detector
         det_ckpt = torch.load(detector_checkpoint, map_location=dev)
+        use_temporal_attn = det_ckpt.get("config", {}).get("use_temporal_attention", False)
         detector = TemporalUNet3D(
             in_channels=1,
             base_channels=det_ckpt.get("config", {}).get("base_channels", 16),
             feature_dim=det_ckpt.get("config", {}).get("feature_dim", 32),
-            use_temporal_attention=True,
+            use_temporal_attention=use_temporal_attn,
         )
         detector.load_state_dict(det_ckpt["model_state_dict"])
 
@@ -93,14 +94,66 @@ class ContinualTrainer:
     def train_detector_on_chunk(
         self,
         datasets: List[DatasetVolume],
-        epochs: int = 5,
+        epochs: int = 10,
         batch_size: int = 2,
-        samples_per_seq: int = 50,
+        samples_per_seq: int = 100,
+        center_on_cell_prob: float = 0.8,
         patch_size: Tuple[int, int, int] = (32, 128, 128),
+        window_size: int = 1,
+        use_amp: bool = False,
         lr_multiplier: float = 1.0,
     ) -> float:
         """Fine-tune 3D Temporal U-Net detector across chunk sequences."""
         self.detector.train()
+
+        # Filter datasets with tracks
+        valid_datasets = [
+            ds for ds in datasets
+            if ds.tracks is not None and ds.tracks.num_nodes() > 0
+        ]
+        if not valid_datasets:
+            logger.warning("No datasets with tracks available in chunk for detector training.")
+            return 0.0
+
+        # Group valid datasets by embryo group prefix ('44b6' vs '6bba')
+        by_embryo: Dict[str, List[DatasetVolume]] = {}
+        for ds in valid_datasets:
+            prefix = ds.name.split("_")[0]
+            by_embryo.setdefault(prefix, []).append(ds)
+
+        # Preserve total patch budget across chunk
+        total_budget = samples_per_seq * len(valid_datasets)
+        dataset_sample_quotas: Dict[str, int] = {}
+        num_embryos = len(by_embryo)
+
+        if num_embryos > 1:
+            quota_per_group = total_budget // num_embryos
+            allocated_so_far = 0
+            sorted_groups = sorted(by_embryo.keys())
+
+            for g_idx, g_name in enumerate(sorted_groups):
+                g_datasets = by_embryo[g_name]
+                if g_idx == num_embryos - 1:
+                    g_quota = total_budget - allocated_so_far
+                else:
+                    g_quota = quota_per_group
+                    allocated_so_far += g_quota
+
+                num_ds_in_group = len(g_datasets)
+                base_alloc = g_quota // num_ds_in_group
+                rem_alloc = g_quota % num_ds_in_group
+
+                for i, ds in enumerate(g_datasets):
+                    dataset_sample_quotas[ds.name] = base_alloc + (1 if i < rem_alloc else 0)
+        else:
+            for ds in valid_datasets:
+                dataset_sample_quotas[ds.name] = samples_per_seq
+
+        domain_counts = {}
+        for ds in valid_datasets:
+            p = ds.name.split("_")[0]
+            domain_counts[p] = domain_counts.get(p, 0) + dataset_sample_quotas[ds.name]
+        logger.info(f"Domain-balanced patch allocation: {domain_counts} (Total: {sum(domain_counts.values())})")
 
         # Build concatenated dataset
         sub_datasets = [
@@ -111,18 +164,13 @@ class ContinualTrainer:
                     min(patch_size[1], ds.shape[2]),
                     min(patch_size[2], ds.shape[3]),
                 ),
-                window_size=2,
-                samples_per_epoch=samples_per_seq,
-                center_on_cell_prob=0.8,
+                window_size=window_size,
+                samples_per_epoch=dataset_sample_quotas[ds.name],
+                center_on_cell_prob=center_on_cell_prob,
                 augment=True,
             )
-            for ds in datasets
-            if ds.tracks is not None and ds.tracks.num_nodes() > 0
+            for ds in valid_datasets
         ]
-
-        if not sub_datasets:
-            logger.warning("No datasets with tracks available in chunk for detector training.")
-            return 0.0
 
         concat_ds = ConcatDataset(sub_datasets)
         loader = DataLoader(concat_ds, batch_size=batch_size, shuffle=True, drop_last=False)
@@ -130,9 +178,10 @@ class ContinualTrainer:
         current_lr = self.detector_lr * lr_multiplier
         optimizer = AdamW(self.detector.parameters(), lr=current_lr, weight_decay=self.weight_decay)
         criterion = DetectionLoss(focal_weight=1.0, dice_weight=1.0)
-        scaler = GradScaler("cuda", enabled=self.device.type == "cuda")
+        amp_enabled = use_amp and (self.device.type == "cuda")
+        scaler = GradScaler("cuda", enabled=amp_enabled, init_scale=128.0)
 
-        logger.info(f"Fine-tuning detector on {len(concat_ds)} samples ({len(datasets)} seqs) for {epochs} epochs at lr={current_lr:.6f}...")
+        logger.info(f"Fine-tuning detector on {len(concat_ds)} samples ({len(datasets)} seqs) for {epochs} epochs at lr={current_lr:.6f} (amp={amp_enabled})...")
 
         avg_loss = 0.0
         for ep in range(epochs):
@@ -144,21 +193,31 @@ class ContinualTrainer:
                 masks = batch["frame_mask"].to(self.device)
 
                 optimizer.zero_grad()
-                with autocast(device_type=self.device.type, enabled=self.device.type == "cuda"):
+                if amp_enabled:
+                    with autocast(device_type="cuda"):
+                        preds, _ = self.detector(images)
+                        loss, metrics = criterion(preds, heatmaps, mask=masks)
+
+                    scaler.scale(loss).backward()
+                    scaler.unscale_(optimizer)
+                    torch.nn.utils.clip_grad_norm_(self.detector.parameters(), max_norm=2.0)
+                    scaler.step(optimizer)
+                    scaler.update()
+                else:
                     preds, _ = self.detector(images)
                     loss, metrics = criterion(preds, heatmaps, mask=masks)
-
-                scaler.scale(loss).backward()
-                scaler.unscale_(optimizer)
-                torch.nn.utils.clip_grad_norm_(self.detector.parameters(), max_norm=1.0)
-                scaler.step(optimizer)
-                scaler.update()
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(self.detector.parameters(), max_norm=2.0)
+                    optimizer.step()
 
                 total_loss += float(metrics["loss_total"])
                 steps += 1
 
             avg_loss = total_loss / max(1, steps)
             logger.info(f" [Detector Epoch {ep+1}/{epochs}] Loss: {avg_loss:.5f}")
+
+        if self.device.type == "cuda":
+            torch.cuda.empty_cache()
 
         return avg_loss
 
@@ -231,6 +290,9 @@ class ContinualTrainer:
             avg_loss = total_loss / max(1, steps)
             logger.info(f" [Tracker Epoch {ep+1}/{epochs}] Loss: {avg_loss:.5f}")
 
+        if self.device.type == "cuda":
+            torch.cuda.empty_cache()
+
         return avg_loss
 
     def save_checkpoints(
@@ -245,7 +307,11 @@ class ContinualTrainer:
         torch.save(
             {
                 "model_state_dict": self.detector.state_dict(),
-                "config": {"base_channels": 16, "feature_dim": 32},
+                "config": {
+                    "base_channels": 16,
+                    "feature_dim": 32,
+                    "use_temporal_attention": self.detector.use_temporal_attention,
+                },
             },
             detector_path,
         )

@@ -33,6 +33,12 @@ class ChunkRecord:
     val_div_jaccard: Optional[float] = None
     val_adj_jaccard: Optional[float] = None
     val_final_score: Optional[float] = None
+    training_config: Optional[Dict[str, Any]] = None
+    inference_time_sec: float = 0.0
+    ilp_runtime_sec: float = 0.0
+    val_node_tp: Optional[int] = None
+    val_node_fp: Optional[int] = None
+    val_node_fn: Optional[int] = None
     promoted_to_best: bool = False
     status: str = "PENDING"  # PENDING, DOWNLOADED, PROCESSED, EVALUATED, CLEANED_UP, FAILED, ROLLED_BACK
     disk_freed_bytes: int = 0
@@ -94,6 +100,12 @@ class ChunkRegistry:
                     val_div_jaccard REAL,
                     val_adj_jaccard REAL,
                     val_final_score REAL,
+                    training_config TEXT,
+                    inference_time_sec REAL DEFAULT 0.0,
+                    ilp_runtime_sec REAL DEFAULT 0.0,
+                    val_node_tp INTEGER,
+                    val_node_fp INTEGER,
+                    val_node_fn INTEGER,
                     promoted_to_best INTEGER DEFAULT 0,
                     status TEXT NOT NULL,
                     disk_freed_bytes INTEGER DEFAULT 0,
@@ -105,6 +117,22 @@ class ChunkRegistry:
                 )
                 """
             )
+            # Automatic column migration for existing database files
+            cur = conn.execute("PRAGMA table_info(chunks)")
+            existing_cols = {row[1] for row in cur.fetchall()}
+            if existing_cols:
+                new_cols = [
+                    ("training_config", "TEXT"),
+                    ("inference_time_sec", "REAL DEFAULT 0.0"),
+                    ("ilp_runtime_sec", "REAL DEFAULT 0.0"),
+                    ("val_node_tp", "INTEGER"),
+                    ("val_node_fp", "INTEGER"),
+                    ("val_node_fn", "INTEGER"),
+                ]
+                for col_name, col_def in new_cols:
+                    if col_name not in existing_cols:
+                        conn.execute(f"ALTER TABLE chunks ADD COLUMN {col_name} {col_def}")
+
             conn.execute("CREATE INDEX IF NOT EXISTS idx_chunks_status ON chunks(status)")
             conn.execute("CREATE INDEX IF NOT EXISTS idx_chunks_role ON chunks(role)")
             conn.commit()
@@ -164,6 +192,12 @@ class ChunkRegistry:
                     val_div_jaccard = ?,
                     val_adj_jaccard = ?,
                     val_final_score = ?,
+                    training_config = ?,
+                    inference_time_sec = ?,
+                    ilp_runtime_sec = ?,
+                    val_node_tp = ?,
+                    val_node_fp = ?,
+                    val_node_fn = ?,
                     promoted_to_best = ?,
                     status = ?,
                     disk_freed_bytes = ?,
@@ -191,6 +225,12 @@ class ChunkRegistry:
                     record.val_div_jaccard,
                     record.val_adj_jaccard,
                     record.val_final_score,
+                    json.dumps(record.training_config) if record.training_config is not None else None,
+                    record.inference_time_sec,
+                    record.ilp_runtime_sec,
+                    record.val_node_tp,
+                    record.val_node_fp,
+                    record.val_node_fn,
                     1 if record.promoted_to_best else 0,
                     record.status,
                     record.disk_freed_bytes,
@@ -296,6 +336,12 @@ class ChunkRegistry:
             val_div_jaccard=row["val_div_jaccard"],
             val_adj_jaccard=row["val_adj_jaccard"],
             val_final_score=row["val_final_score"],
+            training_config=json.loads(row["training_config"]) if ("training_config" in row.keys() and row["training_config"]) else None,
+            inference_time_sec=row["inference_time_sec"] if ("inference_time_sec" in row.keys() and row["inference_time_sec"] is not None) else 0.0,
+            ilp_runtime_sec=row["ilp_runtime_sec"] if ("ilp_runtime_sec" in row.keys() and row["ilp_runtime_sec"] is not None) else 0.0,
+            val_node_tp=row["val_node_tp"] if ("val_node_tp" in row.keys() and row["val_node_tp"] is not None) else None,
+            val_node_fp=row["val_node_fp"] if ("val_node_fp" in row.keys() and row["val_node_fp"] is not None) else None,
+            val_node_fn=row["val_node_fn"] if ("val_node_fn" in row.keys() and row["val_node_fn"] is not None) else None,
             promoted_to_best=bool(row["promoted_to_best"]),
             status=row["status"],
             disk_freed_bytes=row["disk_freed_bytes"],

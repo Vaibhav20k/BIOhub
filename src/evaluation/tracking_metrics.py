@@ -49,6 +49,7 @@ class CompetitionTrackingMetrics:
     edge_precision: float
     edge_recall: float
     edge_f1: float
+    edge_jaccard: float = 0.0
 
     def to_dict(self) -> Dict[str, Union[int, float]]:
         return asdict(self)
@@ -198,6 +199,7 @@ class CompetitionEvaluator:
         edge_prec = edge_tp / max(1, edge_tp + edge_fp)
         edge_rec = edge_tp / max(1, edge_tp + edge_fn)
         edge_f1 = (2.0 * edge_prec * edge_rec) / max(1e-6, edge_prec + edge_rec)
+        edge_jaccard = edge_tp / max(1, edge_tp + edge_fp + edge_fn)
 
         return CompetitionTrackingMetrics(
             node_tp=node_tp,
@@ -222,4 +224,5 @@ class CompetitionEvaluator:
             edge_precision=float(edge_prec),
             edge_recall=float(edge_rec),
             edge_f1=float(edge_f1),
+            edge_jaccard=float(edge_jaccard),
         )

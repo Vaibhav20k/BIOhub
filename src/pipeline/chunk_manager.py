@@ -1,9 +1,12 @@
 """Storage manager for chunked dataset downloads, disk safety checks, integrity validation, and safe cleanup."""
 
+import concurrent.futures
 import logging
 import os
 from pathlib import Path
+import random
 import shutil
+import time
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import tracksdata as td
@@ -12,6 +15,46 @@ import zarr
 logger = logging.getLogger(__name__)
 
 COMPETITION_NAME = "biohub-cell-tracking-during-development"
+
+GEFF_TEMPLATE_FILES = [
+    "edges/ids/c/0/0",
+    "edges/ids/zarr.json",
+    "edges/props/zarr.json",
+    "edges/zarr.json",
+    "nodes/ids/c/0",
+    "nodes/ids/zarr.json",
+    "nodes/props/t/values/c/0",
+    "nodes/props/t/values/zarr.json",
+    "nodes/props/t/zarr.json",
+    "nodes/props/x/values/c/0",
+    "nodes/props/x/values/zarr.json",
+    "nodes/props/x/zarr.json",
+    "nodes/props/y/values/c/0",
+    "nodes/props/y/values/zarr.json",
+    "nodes/props/y/zarr.json",
+    "nodes/props/z/values/c/0",
+    "nodes/props/z/values/zarr.json",
+    "nodes/props/z/zarr.json",
+    "nodes/props/zarr.json",
+    "nodes/zarr.json",
+    "zarr.json",
+]
+
+
+def get_sequence_file_list(stem: str, split: str = "train") -> List[str]:
+    """Construct deterministic list of files for a sequence without expensive API paging."""
+    files = [
+        f"{split}/{stem}.zarr/zarr.json",
+        f"{split}/{stem}.zarr/0/zarr.json",
+    ]
+    for t in range(100):
+        files.append(f"{split}/{stem}.zarr/0/c/{t}/0/0/0")
+
+    if split == "train":
+        for gf in GEFF_TEMPLATE_FILES:
+            files.append(f"{split}/{stem}.geff/{gf}")
+
+    return files
 
 
 class ChunkStorageManager:
@@ -79,49 +122,41 @@ class ChunkStorageManager:
             api = KaggleApi()
             api.authenticate()
 
-        prefix = f"{split}/{stem}."
-        logger.info(f"Querying files for sequence prefix '{prefix}'...")
+        target_files = get_sequence_file_list(stem, split=split)
+        logger.info(f"Downloading {len(target_files)} files for '{stem}' directly...")
 
-        page_token = None
-        target_files: List[Tuple[str, int]] = []
-        total_bytes = 0
-
-        while True:
-            resp = api.competition_list_files(self.competition_name, page_token=page_token, page_size=200)
-            if not hasattr(resp, "files") or not resp.files:
-                break
-
-            for f in resp.files:
-                if f.name.startswith(prefix):
-                    target_files.append((f.name, f.total_bytes))
-                    total_bytes += f.total_bytes
-
-            if target_files and resp.files[-1].name > prefix and not resp.files[-1].name.startswith(prefix):
-                break
-
-            page_token = getattr(resp, "next_page_token", None) or getattr(resp, "nextPageToken", None)
-            if not page_token:
-                break
-
-        if not target_files:
-            logger.error(f"No competition files found matching prefix '{prefix}'.")
-            return False
-
-        logger.info(f"Downloading {len(target_files)} files for '{stem}' ({total_bytes / (1024*1024):.1f} MB)...")
-
-        for idx, (fpath, sz) in enumerate(target_files, 1):
+        def _download_file(fpath: str) -> None:
             rel_path = Path(fpath).relative_to(f"{split}")
             local_target = dest_dir / rel_path
             local_target.parent.mkdir(parents=True, exist_ok=True)
 
-            if local_target.exists() and local_target.stat().st_size == sz:
-                continue
+            if local_target.exists() and local_target.stat().st_size > 0:
+                return
 
-            api.competition_download_file(self.competition_name, fpath, path=str(local_target.parent), quiet=True)
+            max_retries = 10
+            for attempt in range(max_retries):
+                try:
+                    time.sleep(random.uniform(0.10, 0.25))
+                    api.competition_download_file(self.competition_name, fpath, path=str(local_target.parent), quiet=True)
+                    downloaded_name = local_target.parent / Path(fpath).name
+                    if downloaded_name.exists() and downloaded_name != local_target:
+                        downloaded_name.rename(local_target)
+                    return
+                except Exception as e:
+                    err_str = str(e)
+                    if "429" in err_str or "Too Many Requests" in err_str:
+                        wait_s = (2 ** min(attempt, 5)) * 4.0 + random.uniform(3.0, 8.0)
+                        logger.warning(f"Kaggle rate limit (429) downloading {fpath}. Backing off {wait_s:.1f}s (attempt {attempt+1}/{max_retries})...")
+                        time.sleep(wait_s)
+                    elif attempt < max_retries - 1:
+                        wait_s = 3.0 * (attempt + 1)
+                        logger.warning(f"Download transient error on {fpath}: {err_str}. Retrying in {wait_s:.1f}s...")
+                        time.sleep(wait_s)
+                    else:
+                        raise e
 
-            downloaded_name = local_target.parent / Path(fpath).name
-            if downloaded_name.exists() and downloaded_name != local_target:
-                downloaded_name.rename(local_target)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+            list(pool.map(_download_file, target_files))
 
         return True
 
