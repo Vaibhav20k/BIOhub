@@ -19,6 +19,7 @@ from typing import Dict, List, Optional, Set, Tuple
 # Ensure project root is in sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import torch
 import yaml
 
 from src.data.zarr_reader import DatasetVolume, open_dataset
@@ -129,6 +130,51 @@ def init_workflow(config: Dict) -> None:
     logger.info(f"Manifest initialized: {len(chunk_records)} total chunks ({new_chunks} newly registered).")
 
 
+def setup_validation_anchor(
+    config: Dict,
+    storage_mgr: Optional[ChunkStorageManager] = None,
+    dry_run: bool = False,
+) -> List[DatasetVolume]:
+    """Ensure dedicated permanent validation anchor sequences are downloaded in data/val/ and loaded."""
+    if dry_run:
+        fixture_p = Path("data/fixtures/synthetic_clip")
+        return [open_dataset(fixture_p, load_tracks=True, require_tracks=True)]
+
+    val_dir = Path(config["validation"].get("val_dir", "data/val"))
+    val_dir.mkdir(parents=True, exist_ok=True)
+    anchor_stems = config["validation"].get("val_anchor_sequences", ["44b6_66f9292d", "6bba_d82a4fc6"])
+
+    if storage_mgr is None:
+        storage_mgr = ChunkStorageManager(
+            staging_dir=config["storage"]["staging_dir"],
+            min_free_disk_gb=config["storage"]["min_free_disk_gb"],
+            competition_name=config["competition"]["name"],
+        )
+
+    loaded = []
+    for stem in anchor_stems:
+        stem_zarr = val_dir / f"{stem}.zarr"
+        stem_geff = val_dir / f"{stem}.geff"
+
+        is_valid = False
+        if stem_zarr.exists() and stem_geff.exists():
+            valid, _ = storage_mgr.verify_sequence_integrity(val_dir / stem, require_tracks=True)
+            is_valid = valid
+
+        if not is_valid:
+            logger.info(f"Downloading permanent validation anchor sequence '{stem}' to {val_dir}...")
+            storage_mgr.assert_disk_safety(required_extra_gb=1.0)
+            ok = storage_mgr.download_sequence(stem=stem, split="train", dest_dir=val_dir)
+            if not ok:
+                raise RuntimeError(f"Failed to download validation anchor sequence '{stem}'")
+            storage_mgr.verify_sequence_integrity(val_dir / stem, require_tracks=True)
+
+        loaded.append(open_dataset(val_dir / stem, load_tracks=True))
+
+    logger.info(f"Permanent validation anchor ready: {[ds.name for ds in loaded]}")
+    return loaded
+
+
 def print_status(config: Dict) -> None:
     """Print comprehensive summary of processed chunks, sizes, and scores."""
     registry = ChunkRegistry(
@@ -218,15 +264,41 @@ def process_chunk(
         det_epochs = 1 if dry_run else config["training"]["detector"]["epochs_per_chunk"]
         trk_epochs = 1 if dry_run else config["training"]["tracker"]["epochs_per_chunk"]
 
+        chunk_num = 1
+        try:
+            chunk_num = int(chunk_record.chunk_id.split("_")[1])
+        except Exception:
+            pass
+
+        det_decay = float(config["training"]["detector"].get("lr_decay_per_chunk", 1.0)) ** max(0, chunk_num - 1)
+        trk_decay = float(config["training"]["tracker"].get("lr_decay_per_chunk", 1.0)) ** max(0, chunk_num - 1)
+
+        win_size = config["training"]["detector"].get("window_size", 1)
+        det_patch_size = tuple(config["training"]["detector"].get("patch_size", [32, 128, 128]))
+        samples_per_seq = int(config["training"]["detector"].get("samples_per_seq", 100))
+        center_on_cell_prob = float(config["training"]["detector"].get("center_on_cell_prob", 0.8))
+        use_amp = bool(config["training"]["detector"].get("use_amp", False))
+        if torch.cuda.is_available():
+            torch.cuda.reset_peak_memory_stats()
+
         det_loss = trainer.train_detector_on_chunk(
             datasets=loaded_datasets,
             epochs=det_epochs,
             batch_size=config["training"]["detector"]["batch_size"],
+            samples_per_seq=samples_per_seq,
+            center_on_cell_prob=center_on_cell_prob,
+            patch_size=det_patch_size,
+            window_size=win_size,
+            use_amp=use_amp,
+            lr_multiplier=det_decay,
         )
         trk_loss = trainer.train_tracker_on_chunk(
             datasets=loaded_datasets,
             epochs=trk_epochs,
+            lr_multiplier=trk_decay,
         )
+        train_vram_gb = torch.cuda.max_memory_allocated() / (1024**3) if torch.cuda.is_available() else 0.0
+        logger.info(f"Training Peak VRAM: {train_vram_gb:.3f} GB")
 
         # Save latest checkpoints
         trainer.save_checkpoints(
@@ -237,45 +309,77 @@ def process_chunk(
         chunk_record.epochs_trained = det_epochs + trk_epochs
         chunk_record.train_loss_detector = det_loss
         chunk_record.train_loss_tracker = trk_loss
+        chunk_record.training_config = config.get("training", {})
         chunk_record.status = "PROCESSED"
         registry.update_chunk(chunk_record)
 
-        # 5. Held-Out Evaluation
-        logger.info("Evaluating updated models on held-out validation sequences...")
+        # 5. Held-Out Evaluation on Dedicated Validation Anchor
+        logger.info("Evaluating updated models on held-out validation anchor...")
+        if torch.cuda.is_available():
+            torch.cuda.reset_peak_memory_stats()
+
+        det_threshold = float(config.get("evaluation", {}).get("detection_threshold", 0.25))
         evaluator = HeldOutEvaluator(
             detector=trainer.detector,
             embedder=trainer.embedder,
             tracker=trainer.tracker,
-            detection_threshold=0.5,
+            detection_threshold=det_threshold,
+            max_peaks_per_frame=150,
             max_distance_um=config["training"]["tracker"]["max_distance_um"],
+            window_size=win_size,
+            diagnostic_mode=False,
         )
 
-        # In dry-run or default mode, evaluate on available validation volume (e.g. 44b6_0b24845f or synthetic)
-        val_candidates = []
-        if Path("data/train/44b6_0b24845f.zarr").exists():
-            val_candidates.append(open_dataset("data/train/44b6_0b24845f", load_tracks=True))
-        else:
-            val_candidates.append(open_dataset("data/fixtures/synthetic_clip", load_tracks=True))
-
+        val_candidates = setup_validation_anchor(config, storage_mgr, dry_run=dry_run)
         val_summary = evaluator.evaluate_cohort(val_candidates)
+        eval_vram_gb = torch.cuda.max_memory_allocated() / (1024**3) if torch.cuda.is_available() else 0.0
+        logger.info(f"Evaluation Peak VRAM: {eval_vram_gb:.3f} GB")
         score = val_summary["macro_final_score"]
         adj_jaccard = val_summary["macro_adjusted_jaccard"]
         div_jaccard = val_summary["macro_division_jaccard"]
+        edge_jaccard = val_summary["macro_edge_jaccard"]
 
-        logger.info(f"Validation results: Final Score = {score:.4f} (J_adj={adj_jaccard:.4f}, J_div={div_jaccard:.4f})")
+        logger.info(
+            f"Validation results: Final Score = {score:.4f} "
+            f"(J_adj={adj_jaccard:.4f}, J_div={div_jaccard:.4f}, Edge_J={edge_jaccard:.4f})"
+        )
 
         prev_best = registry.get_best_score()
         promoted = False
+        rollback_threshold = config["checkpoints"].get("rollback_threshold_drop", 0.15)
+
         if score >= prev_best:
             logger.info(f"★ NEW BEST MODEL! Score improved from {prev_best:.4f} to {score:.4f}. Promoting checkpoints.")
             shutil.copy(config["checkpoints"]["latest_detector"], config["checkpoints"]["best_detector"])
             shutil.copy(config["checkpoints"]["latest_tracker"], config["checkpoints"]["best_tracker"])
             promoted = True
+        elif prev_best > 0 and score < prev_best * (1.0 - rollback_threshold):
+            logger.warning(
+                f"Validation score {score:.4f} dropped > {rollback_threshold:.0%} below best {prev_best:.4f}. "
+                f"Rolling back latest weights to golden best checkpoint."
+            )
+            shutil.copy(config["checkpoints"]["best_detector"], config["checkpoints"]["latest_detector"])
+            shutil.copy(config["checkpoints"]["best_tracker"], config["checkpoints"]["latest_tracker"])
+
+        # Archive checkpoint snapshot per chunk
+        archive_dir = Path(config["checkpoints"].get("archive_dir", ""))
+        if archive_dir and not dry_run:
+            archive_dir.mkdir(parents=True, exist_ok=True)
+            shutil.copy(config["checkpoints"]["latest_detector"], archive_dir / f"{chunk_record.chunk_id}_detector.pt")
+            shutil.copy(config["checkpoints"]["latest_tracker"], archive_dir / f"{chunk_record.chunk_id}_tracker.pt")
 
         chunk_record.val_sequences_evaluated = [ds.name for ds in val_candidates]
+        chunk_record.val_node_tp = val_summary.get("total_node_tp")
+        chunk_record.val_node_fp = val_summary.get("total_node_fp")
+        chunk_record.val_node_fn = val_summary.get("total_node_fn")
+        chunk_record.val_node_precision = val_summary.get("macro_node_precision")
+        chunk_record.val_node_recall = val_summary.get("macro_node_recall")
+        chunk_record.val_edge_jaccard = edge_jaccard
         chunk_record.val_adj_jaccard = adj_jaccard
         chunk_record.val_div_jaccard = div_jaccard
         chunk_record.val_final_score = score
+        chunk_record.inference_time_sec = val_summary.get("inference_time_sec", 0.0)
+        chunk_record.ilp_runtime_sec = val_summary.get("ilp_runtime_sec", 0.0)
         chunk_record.promoted_to_best = promoted
         chunk_record.status = "EVALUATED"
         registry.update_chunk(chunk_record)
@@ -303,6 +407,12 @@ def process_chunk(
         chunk_record.status = "FAILED"
         chunk_record.error_message = str(e)
         registry.update_chunk(chunk_record)
+        if chunk_dir.exists():
+            logger.info(f"Reclaiming disk space from failed chunk directory {chunk_dir}...")
+            try:
+                storage_mgr.cleanup_chunk(chunk_dir, registry_verified=True, checkpoints_verified=False)
+            except Exception as cleanup_err:
+                logger.warning(f"Error cleaning up failed chunk dir: {cleanup_err}")
         raise e
 
 
@@ -311,7 +421,9 @@ def main() -> None:
     parser.add_argument("--config", type=str, default="configs/chunked_workflow.yaml", help="Path to YAML config")
     parser.add_argument("--init", action="store_true", help="Initialize manifest and registry from dataset catalog")
     parser.add_argument("--status", action="store_true", help="Display workflow execution and disk status")
+    parser.add_argument("--setup-val-anchor", action="store_true", help="Download and verify permanent validation anchor sequences")
     parser.add_argument("--process-next", action="store_true", help="Process the next pending chunk")
+    parser.add_argument("--process-all", action="store_true", help="Process all remaining pending chunks sequentially")
     parser.add_argument("--chunk-id", type=str, default=None, help="Process a specific chunk by ID")
     parser.add_argument("--dry-run", action="store_true", help="Simulate chunk cycle with local fixtures")
 
@@ -323,6 +435,10 @@ def main() -> None:
         print_status(config)
         return
 
+    if args.setup_val_anchor:
+        setup_validation_anchor(config, dry_run=args.dry_run)
+        return
+
     if args.status:
         print_status(config)
         return
@@ -331,6 +447,20 @@ def main() -> None:
         sqlite_path=config["registry"]["sqlite_path"],
         jsonl_path=config["registry"]["jsonl_path"],
     )
+
+    if args.process_all:
+        processed_count = 0
+        while True:
+            target_chunk = registry.get_next_pending_chunk()
+            if target_chunk is None:
+                logger.info("All chunks in registry have completed processing! Nothing pending.")
+                break
+            logger.info(f"\n{'='*70}\n[RUN ALL] Processing chunk {target_chunk.chunk_id} (count: {processed_count + 1})\n{'='*70}")
+            process_chunk(target_chunk, config, dry_run=args.dry_run)
+            processed_count += 1
+            print_status(config)
+        logger.info(f"Finished processing all pending chunks. Total processed this session: {processed_count}")
+        return
 
     target_chunk = None
     if args.chunk_id:
