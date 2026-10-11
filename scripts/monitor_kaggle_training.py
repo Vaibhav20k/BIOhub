@@ -8,8 +8,8 @@ from pathlib import Path
 from kaggle.api.kaggle_api_extended import KaggleApi
 
 def main():
-    kernel_slug = "vai136/biohub-chunk-2-continual-training"
-    out_dir = Path("/tmp/kaggle_training_output")
+    kernel_slug = sys.argv[1] if len(sys.argv) > 1 else "vai136/biohub-chunk-3-continual-training"
+    out_dir = Path(sys.argv[2]) if len(sys.argv) > 2 else Path("/tmp/kaggle_chunk3_output")
     out_dir.mkdir(parents=True, exist_ok=True)
     
     api = KaggleApi()
@@ -24,8 +24,15 @@ def main():
     while True:
         try:
             status_obj = api.kernels_status(kernel_slug)
-            status = status_obj.get("status")
-            failure_message = status_obj.get("failureMessage")
+            if hasattr(status_obj, "status"):
+                status = getattr(status_obj.status, "name", str(status_obj.status))
+                failure_message = getattr(status_obj, "failure_message", getattr(status_obj, "failureMessage", None))
+            elif isinstance(status_obj, dict):
+                status = status_obj.get("status")
+                failure_message = status_obj.get("failureMessage")
+            else:
+                status = str(status_obj)
+                failure_message = None
             elapsed = time.time() - start_time
             elapsed_min = elapsed / 60.0
             
