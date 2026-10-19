@@ -5,6 +5,7 @@ vai136/biohub-code-checkpoints, runs the protocol tests, then scripts/run_chunk3
 Outputs (results JSON, registry entry, per-epoch and candidate checkpoints) land in /kaggle/working.
 """
 
+import hashlib
 import os
 import shutil
 import subprocess
@@ -23,21 +24,31 @@ def run(cmd, **kw):
     subprocess.check_call(cmd, **kw)
 
 
+PROMOTED = {  # the Chunk 2 baseline (README "Current Project State")
+    "best_detector.pt": "6e9a64c754551402d45c30b7a6949d04f2d2d7e40a3f076243581037a130eaab",
+    "best_tracker.pt": "ed3a4498461da21dbd7b39943eece75f06b6b0fa8faaf570c3aa93403994baf5",
+}
+
+
 def fetch_checkpoints(dest: Path) -> None:
+    """Copy the promoted checkpoints from /kaggle/input, choosing by SHA-256 if several copies exist."""
     dest.mkdir(parents=True, exist_ok=True)
-    wanted = {"best_detector.pt", "best_tracker.pt"}
     for root, _, files in os.walk("/kaggle/input"):
-        for name in wanted & set(files):
-            shutil.copy2(Path(root) / name, dest / name)
+        for name in PROMOTED.keys() & set(files):
+            data = (Path(root) / name).read_bytes()
+            if hashlib.sha256(data).hexdigest() == PROMOTED[name]:
+                (dest / name).write_bytes(data)
         if "checkpoints.zip" in files:
             with zipfile.ZipFile(Path(root) / "checkpoints.zip") as zf:
                 for member in zf.namelist():
-                    base = Path(member).name
-                    if base in wanted and not (dest / base).exists():
-                        (dest / base).write_bytes(zf.read(member))
-    missing = [w for w in wanted if not (dest / w).exists()]
+                    name = Path(member).name
+                    if name in PROMOTED and not (dest / name).exists():
+                        data = zf.read(member)
+                        if hashlib.sha256(data).hexdigest() == PROMOTED[name]:
+                            (dest / name).write_bytes(data)
+    missing = [n for n in PROMOTED if not (dest / n).exists()]
     if missing:
-        raise FileNotFoundError(f"Chunk 2 checkpoints not found in /kaggle/input: {missing}")
+        raise FileNotFoundError(f"Promoted Chunk 2 checkpoints not found in /kaggle/input: {missing}")
 
 
 def main() -> int:
