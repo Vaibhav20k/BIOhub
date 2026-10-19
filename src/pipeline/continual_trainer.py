@@ -11,6 +11,7 @@ from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import ConcatDataset, DataLoader
 
+from src.data.patch_sampler import density_normalized_quotas
 from src.data.zarr_reader import DatasetVolume, open_dataset
 from src.detection.dataset import DetectionDataset
 from src.detection.unet3d import TemporalUNet3D
@@ -102,8 +103,15 @@ class ContinualTrainer:
         window_size: int = 1,
         use_amp: bool = False,
         lr_multiplier: float = 1.0,
+        quota_mode: str = "domain_balanced",
     ) -> float:
-        """Fine-tune 3D Temporal U-Net detector across chunk sequences."""
+        """Fine-tune 3D Temporal U-Net detector across chunk sequences.
+
+        quota_mode: "domain_balanced" (equal patches per embryo group) or "cell_density" (Milestone 1: patches in
+        proportion to each sequence's annotated cells, see ``density_normalized_quotas``).
+        """
+        if quota_mode not in ("domain_balanced", "cell_density"):
+            raise ValueError(f"Unknown quota_mode: {quota_mode}")
         self.detector.train()
 
         # Filter datasets with tracks
@@ -126,7 +134,11 @@ class ContinualTrainer:
         dataset_sample_quotas: Dict[str, int] = {}
         num_embryos = len(by_embryo)
 
-        if num_embryos > 1:
+        if quota_mode == "cell_density":
+            dataset_sample_quotas = density_normalized_quotas(
+                {ds.name: int(ds.tracks.num_nodes()) for ds in valid_datasets}, total_budget
+            )
+        elif num_embryos > 1:
             quota_per_group = total_budget // num_embryos
             allocated_so_far = 0
             sorted_groups = sorted(by_embryo.keys())
@@ -153,7 +165,7 @@ class ContinualTrainer:
         for ds in valid_datasets:
             p = ds.name.split("_")[0]
             domain_counts[p] = domain_counts.get(p, 0) + dataset_sample_quotas[ds.name]
-        logger.info(f"Domain-balanced patch allocation: {domain_counts} (Total: {sum(domain_counts.values())})")
+        logger.info(f"Patch allocation ({quota_mode}): {domain_counts} (Total: {sum(domain_counts.values())})")
 
         # Build concatenated dataset
         sub_datasets = [

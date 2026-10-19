@@ -10,6 +10,54 @@ from src.data.preprocessing import normalize_intensity
 from src.data.zarr_reader import DatasetVolume
 
 
+def density_normalized_quotas(
+    node_counts: Dict[str, int],
+    total_patches: int,
+    min_per_sequence: int = 1,
+) -> Dict[str, int]:
+    """Milestone 1: patch quota per sequence proportional to its annotated cell count.
+
+    Quota(s) = total_patches * Nodes(s) / sum(Nodes), rounded with the largest-remainder method so the quotas sum to
+    exactly ``total_patches``. With cell-centred sampling inside each sequence, every annotated cell in the chunk then
+    has the same expected exposure, replacing the 50/50 embryo split that over-sampled sparse 44b6 cells ~20x.
+    Each sequence keeps at least ``min_per_sequence`` patches, taken from the largest quotas.
+    """
+    if not node_counts:
+        return {}
+    if any(n < 0 for n in node_counts.values()):
+        raise ValueError("Node counts must be non-negative")
+    if total_patches < min_per_sequence * len(node_counts):
+        raise ValueError(f"total_patches={total_patches} cannot give {min_per_sequence} to {len(node_counts)} sequences")
+
+    names = sorted(node_counts)
+    total_nodes = sum(node_counts.values())
+    if total_nodes == 0:
+        raw = {s: total_patches / len(names) for s in names}
+    else:
+        raw = {s: total_patches * node_counts[s] / total_nodes for s in names}
+
+    quotas = {s: int(np.floor(raw[s])) for s in names}
+    leftover = total_patches - sum(quotas.values())
+    for s in sorted(names, key=lambda s: (-(raw[s] - quotas[s]), s))[:leftover]:
+        quotas[s] += 1
+
+    for s in names:  # floor for tiny sequences, paid for by the largest quotas
+        while quotas[s] < min_per_sequence:
+            donor = max(names, key=lambda d: (quotas[d], d))
+            quotas[donor] -= 1
+            quotas[s] += 1
+    return quotas
+
+
+def domain_totals(quotas: Dict[str, int]) -> Dict[str, int]:
+    """Sum per-sequence quotas by embryo prefix (e.g. '44b6_0c582fdc' -> '44b6')."""
+    totals: Dict[str, int] = {}
+    for name, q in quotas.items():
+        prefix = name.split("_")[0]
+        totals[prefix] = totals.get(prefix, 0) + q
+    return totals
+
+
 class SpatioTemporalPatchSampler(Dataset):
     """Samples 3D+t spatio-temporal crops and localized subgraphs from microscopy volumes."""
 
