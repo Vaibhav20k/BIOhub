@@ -171,6 +171,7 @@ To systematically overcome the Chunk 3 failure, prevent cross-domain catastrophi
 ```
 
 ### Milestone 1: Cell-Density-Normalized Stratified Sampler
+- **Status**: Implemented: `density_normalized_quotas` in `src/data/patch_sampler.py` (also `ContinualTrainer(quota_mode="cell_density")`); Chunk 3.1 crops are 100% cell-centred.
 - **Problem Solved**: Eliminates the 20x per-cell exposure disparity.
 - **Implementation**:
   - Replace the naïve 50/50 patch quota with **cell-count proportional quota allocation**:
@@ -179,6 +180,7 @@ To systematically overcome the Chunk 3 failure, prevent cross-domain catastrophi
   - Enforce **positive-cell-centered patch extraction**: sample uniformly over detected/ground-truth cell coordinates rather than drawing blind spatial volumes, guaranteeing that every cell has an equal probability of appearance.
 
 ### Milestone 2: Continual Learning Rate & Knowledge Distillation
+- **Status**: Implemented in `src/training/continual.py` (warm-up + cosine scheduler, frozen-teacher feature distillation on the last decoder block `up3`).
 - **Problem Solved**: Prevents catastrophic forgetting of pre-trained feature manifolds.
 - **Implementation**:
   - **10x Learning Rate Reduction**: Drop continual detector fine-tuning LR from $2 \times 10^{-3}$ to **$2 \times 10^{-4}$**.
@@ -201,6 +203,7 @@ To systematically overcome the Chunk 3 failure, prevent cross-domain catastrophi
   - Output precision-recall-F1 curves and simulated lineage scores to identify optimal operating thresholds per domain without modifying inference invariants.
 
 ### Milestone 5: Chunk 3.1 Controlled Retraining Experiment
+- **Status**: Ready to run: `scripts/run_chunk31_training.py`, launched on Kaggle GPU via `kernels/chunk31/` (`kaggle kernels push -p kernels/chunk31`). Milestones 3 and 4 are not part of this run.
 - **Objective**: Execute single-variable controlled retraining on Chunk 3 under the corrected protocol.
 - **Configuration**:
   - Base Checkpoint: Promoted Chunk 2 baseline (`best_detector.pt` / `best_tracker.pt`).
@@ -258,6 +261,7 @@ To systematically overcome the Chunk 3 failure, prevent cross-domain catastrophi
 │   └── chunk3_continual_results.json    # Chunk 3 Kaggle execution results
 ├── scripts/
 │   ├── run_chunk3_training.py           # Kaggle GPU Chunk 3 continual learning script
+│   ├── run_chunk31_training.py          # Milestone 5: Chunk 3.1 controlled retraining (M1 + M2)
 │   ├── run_ablation_matrix.py           # Controlled inference ablation runner
 │   ├── generate_failure_analysis_plots.py# Diagnostic visualization generator
 │   ├── generate_failure_manifest.py     # Audit manifest generator
