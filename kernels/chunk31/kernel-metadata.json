@@ -1,0 +1,15 @@
+{
+  "id": "vai136/biohub-chunk-3-1-controlled-retraining",
+  "title": "BIOhub Chunk 3.1 Controlled Retraining",
+  "code_file": "kernel.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": ["vai136/biohub-code-checkpoints"],
+  "competition_sources": ["biohub-cell-tracking-during-development"],
+  "kernel_sources": [],
+  "model_sources": []
+}
