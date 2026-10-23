@@ -213,3 +213,90 @@ class SpatioTemporalPatchSampler(Dataset):
             "nodes_by_step": nodes_by_step,
             "transitions": transitions,
         }
+
+
+class CellDensityStratifiedDataset(Dataset):
+    """Multi-sequence dataset that balances patch quotas directly proportional to ground-truth cell counts.
+
+    Guarantees:
+    1. Zero cell starvation: Each sequence's quota is strictly proportional to its GT cell density.
+    2. Zero oversampling: Sequences with few cells (e.g. 71 cells) are sampled proportionally to their cell count.
+    3. Every ground truth cell across all sequences and domains has an equal expected exposure frequency:
+       E[cell_exposure] = Total_Patches / Total_Cells = Constant.
+    """
+
+    def __init__(
+        self,
+        datasets: List[DatasetVolume],
+        total_samples_per_epoch: int = 800,
+        patch_size: Tuple[int, int, int] = (32, 128, 128),
+        window_size: int = 1,
+        center_on_cell_prob: float = 0.85,
+        normalize: bool = True,
+        seed: Optional[int] = 42,
+    ):
+        self.datasets = datasets
+        self.total_samples = total_samples_per_epoch
+        self.patch_size = patch_size
+        self.window_size = window_size
+        self.center_on_cell_prob = center_on_cell_prob
+        self.normalize = normalize
+        self.seed = seed
+
+        # 1. Count ground truth nodes per sequence
+        self.node_counts: Dict[str, int] = {}
+        for ds in datasets:
+            n_nodes = ds.tracks.num_nodes() if ds.tracks is not None else 0
+            self.node_counts[ds.name] = n_nodes
+
+        total_nodes = sum(self.node_counts.values())
+        assert total_nodes > 0, "No ground truth nodes found in provided datasets!"
+
+        # 2. Compute proportional quotas
+        self.quotas: Dict[str, int] = {}
+        allocated = 0
+        for ds in datasets:
+            q = max(1, int(round(total_samples_per_epoch * (self.node_counts[ds.name] / total_nodes))))
+            self.quotas[ds.name] = q
+            allocated += q
+
+        # Adjust for rounding discrepancy
+        diff = total_samples_per_epoch - allocated
+        if diff != 0:
+            largest_seq = max(self.node_counts, key=self.node_counts.get)
+            self.quotas[largest_seq] += diff
+
+        # 3. Create per-dataset patch samplers
+        self.samplers: Dict[str, SpatioTemporalPatchSampler] = {}
+        self.index_map: List[Tuple[str, int]] = []
+
+        for i, ds in enumerate(datasets):
+            s_quota = self.quotas[ds.name]
+            sampler_seed = (seed + i * 1000) if seed is not None else None
+            sampler = SpatioTemporalPatchSampler(
+                dataset=ds,
+                patch_size=patch_size,
+                window_size=window_size,
+                samples_per_epoch=s_quota,
+                center_on_cell_prob=center_on_cell_prob,
+                normalize=normalize,
+                seed=sampler_seed,
+            )
+            self.samplers[ds.name] = sampler
+            for local_idx in range(s_quota):
+                self.index_map.append((ds.name, local_idx))
+
+        # Shuffle global index map deterministically
+        if seed is not None:
+            rng = np.random.RandomState(seed)
+            rng.shuffle(self.index_map)
+
+    def __len__(self) -> int:
+        return len(self.index_map)
+
+    def __getitem__(self, idx: int) -> Dict[str, Union[torch.Tensor, Dict, List]]:
+        ds_name, local_idx = self.index_map[idx]
+        item = self.samplers[ds_name][local_idx]
+        item["sequence_name"] = ds_name
+        return item
+

@@ -72,6 +72,38 @@ def normalize_intensity(
         return norm
 
 
+def adaptive_contrast_normalize(
+    image: Union[np.ndarray, torch.Tensor],
+    p_low: float = 2.0,
+    p_high: float = 99.8,
+    eps: float = 1e-6,
+) -> Union[np.ndarray, torch.Tensor]:
+    """Adaptive robust percentile normalization for cross-domain microscopy volumes.
+
+    Equalizes the dynamic range and contrast across disparate embryo domains
+    (e.g. 44b6 vs 6bba), ensuring consistent foreground signal peak magnitude
+    and background variance prior to 3D convolutional processing.
+    """
+    is_torch = isinstance(image, torch.Tensor)
+    if is_torch:
+        flat = image.flatten().float()
+        if flat.numel() > 100_000:
+            flat = flat[:: max(1, flat.numel() // 50_000)]
+        v_low = float(torch.quantile(flat, p_low / 100.0))
+        v_high = float(torch.quantile(flat, p_high / 100.0))
+        v_diff = max(v_high - v_low, eps)
+        return torch.clamp((image.float() - v_low) / v_diff, 0.0, 1.0)
+    else:
+        flat = np.asarray(image).ravel().astype(np.float32)
+        if flat.size > 100_000:
+            flat = flat[:: max(1, flat.size // 50_000)]
+        v_low = float(np.percentile(flat, p_low))
+        v_high = float(np.percentile(flat, p_high))
+        v_diff = max(v_high - v_low, eps)
+        return np.clip((image.astype(np.float32) - v_low) / v_diff, 0.0, 1.0)
+
+
+
 def pixel_to_physical(
     coords: Union[np.ndarray, torch.Tensor],
     scale: Tuple[float, float, float] = DEFAULT_SCALE,

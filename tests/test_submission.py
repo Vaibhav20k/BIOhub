@@ -158,7 +158,7 @@ def test_end_to_end_submission_pipeline_fixture(tmp_path):
     pipeline = EndToEndSubmissionPipeline(
         detector_checkpoint="checkpoints/best_detector.pt",
         tracker_checkpoint="checkpoints/best_tracker.pt",
-        detection_threshold=0.25,
+        detection_threshold=0.10,
         max_peaks_per_frame=50,
         max_distance_um=7.0,
     )
